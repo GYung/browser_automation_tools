@@ -1,7 +1,12 @@
+node_modules/
+
 output/
 logs/
 *.log
 dist/
 build/
 .idea/
-node_modules/
+
+.env
+.env.local
+.env.*.local
