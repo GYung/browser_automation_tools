@@ -18,4 +18,12 @@ export class DataScreenTask extends BaseTask {
   protected getOutputHandler(): OutputHandler {
     return new HtmlOutputHandler();
   }
+
+  protected getTaskDescription(): string {
+    return "对指定网页进行截图，并生成HTML页面展示截图";
+  }
+
+  protected getUsage(): string {
+    return "npm run task screen [url] [screenshotPath] [waitTime] [fullPage]";
+  }
 }

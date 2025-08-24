@@ -18,4 +18,12 @@ export class DataActionTask extends BaseTask {
   protected getOutputHandler(): OutputHandler {
     return new ConsoleOutputHandler();
   }
+
+  protected getTaskDescription(): string {
+    return "在指定网页中执行搜索操作，并在控制台输出执行结果";
+  }
+
+  protected getUsage(): string {
+    return "npm run task action [url] [keyword] [selectors] [waitTime]";
+  }
 }

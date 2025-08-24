@@ -1,4 +1,5 @@
 import type { AcquisitionHandler, AcquisitionResult } from "../types/index.js";
+import { DataType } from "../types/index.js";
 import { BrowserManager } from "../core/browser-manager.js";
 
 /**
@@ -122,10 +123,15 @@ export class PageActionAcquisitionHandler implements AcquisitionHandler {
       const result: AcquisitionResult = {
         success: true,
         url: config.url,
-        pageInfo,
-        keyword: config.keyword,
-        searchResults,
-        timestamp: new Date().toISOString(),
+        dataType: DataType.TEXT,
+        data: new Map([
+          ["keyword", config.keyword],
+          ["searchResults", searchResults],
+        ]),
+        metadata: {
+          searchUrl: config.url,
+          resultCount: searchResults.count,
+        },
       };
 
       console.log(`🎉 搜索完成`);

@@ -1,7 +1,9 @@
 import type { AcquisitionHandler, AcquisitionResult } from "../types/index.js";
-import { BrowserManager } from "../core/browser-manager.js";
+import { DataType } from "../types/index.js";
 import * as fs from "fs/promises";
 import * as path from "path";
+import { ScreenshotUtils } from "../utils/screenshot-utils.js";
+import { BrowserManager } from "../core/browser-manager.js";
 
 /**
  * 页面截图数据采集器
@@ -21,7 +23,6 @@ export class PageScreenAcquisitionHandler implements AcquisitionHandler {
     const config = {
       url: input.url || "https://www.baidu.com",
       screenshotPath: input.screenshotPath || "./output/screenshot.png",
-      // viewport: input.viewport || { width: 1920, height: 1080 },
       waitTime: input.waitTime || 2000,
       fullPage: input.fullPage || false,
       ...input,
@@ -36,58 +37,35 @@ export class PageScreenAcquisitionHandler implements AcquisitionHandler {
     console.log(`📁 确保输出目录存在: ${outputDir}`);
 
     try {
-      console.log(`🚀 使用共享浏览器实例`);
-
-      // 从浏览器管理器获取浏览器实例并创建新页面
+      // 获取浏览器实例并创建新页面
       const browserManager = BrowserManager.getInstance();
       const page = await browserManager.newPage();
       console.log(`📄 新页面创建成功`);
 
-      // 设置视口
-      // await page.setViewport(config.viewport);
-      // console.log(`📱 视口设置: ${config.viewport.width}x${config.viewport.height}`);
-
-      // 访问页面
-      console.log(`🔗 正在访问页面...`);
-      await page.goto(config.url, {
-        waitUntil: "networkidle2", // 等待网络空闲
-        timeout: 30000, // 30秒超时
-      });
-
-      console.log(`✅ 页面加载完成`);
-
-      // 等待指定时间
-      if (config.waitTime > 0) {
-        console.log(`⏳ 等待 ${config.waitTime}ms...`);
-        await new Promise((resolve) => setTimeout(resolve, config.waitTime));
-      }
-
-      // 获取页面信息
-      const pageInfo = {
-        title: await page.title(),
-        url: page.url(),
-        viewport: config.viewport,
-      };
-
-      console.log(`📋 页面信息:`, pageInfo);
-
-      // 截图
-      console.log(`📸 开始截图...`);
-      const screenshot = await page.screenshot({
-        path: config.screenshotPath,
+      // 使用截图工具执行截图操作
+      const screenshotResult = await ScreenshotUtils.takeScreenshot(page, {
+        url: config.url,
+        screenshotPath: config.screenshotPath,
+        waitTime: config.waitTime,
         fullPage: config.fullPage,
       });
 
-      console.log(`✅ 截图完成: ${config.screenshotPath}`);
+      if (!screenshotResult.success) {
+        throw new Error(screenshotResult.error || "截图失败");
+      }
 
       // 返回结果
       const result: AcquisitionResult = {
         success: true,
         url: config.url,
-        screenshotPath: config.screenshotPath,
-        pageInfo,
-        screenshot: screenshot,
-        timestamp: new Date().toISOString(),
+        dataType: DataType.IMAGE,
+        data: new Map([
+          ["screenshot", screenshotResult.screenshot],
+        ]),
+        metadata: {
+          screenshotPath: config.screenshotPath,
+          fullPage: config.fullPage,
+        },
       };
 
       console.log(`🎉 数据采集完成`);
@@ -95,9 +73,6 @@ export class PageScreenAcquisitionHandler implements AcquisitionHandler {
     } catch (error) {
       console.error(`❌ 数据采集失败:`, error);
       throw error;
-    } finally {
-      // 注意：这里不关闭浏览器，因为它是共享实例
-      console.log(`📄 页面处理完成，保持浏览器实例运行`);
     }
   }
 }

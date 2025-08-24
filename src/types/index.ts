@@ -7,16 +7,22 @@ export interface PageInfo {
 }
 
 /**
+ * 数据类型枚举
+ */
+export enum DataType {
+  IMAGE = "image",
+  TEXT = "text"
+}
+
+/**
  * 数据采集结果结构
  */
 export interface AcquisitionResult {
   success: boolean;
   url?: string;
-  screenshotPath?: string;
-  pageInfo?: PageInfo;
-  screenshot?: Buffer;
-  timestamp: string;
-  [key: string]: any; // 允许其他属性
+  dataType: DataType; // 数据类型标识
+  data: Map<string, any>; // 数据 map，key 是数据标识，value 是数据
+  metadata?: Record<string, any>; // 元数据（如路径、配置等）
 }
 
 /**
@@ -40,11 +46,11 @@ export interface AcquisitionHandler {
 export interface OutputHandler {
   /**
    * 执行输出处理
-   * @param {Object} input - 输入参数（包含采集结果）
+   * @param {AcquisitionResult} input - 采集结果
    * @param {Object} context - 执行上下文
    * @returns {Promise<void>} 输出结果
    */
-  execute(input: any, context: any): Promise<void>;
+  execute(input: AcquisitionResult, context: any): Promise<void>;
 }
 
 // ------------参数定义--------

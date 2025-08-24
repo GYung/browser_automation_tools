@@ -18,4 +18,12 @@ export class DataScrapeTask extends BaseTask {
   protected getOutputHandler(): OutputHandler {
     return new TextOutputHandler();
   }
+
+  protected getTaskDescription(): string {
+    return "抓取指定网页的数据（标题、链接、图片等），并输出为文本文件";
+  }
+
+  protected getUsage(): string {
+    return "npm run task scrape [url] [outputPath] [waitTime]";
+  }
 }

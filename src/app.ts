@@ -94,14 +94,18 @@ function help() {
   console.log("help: 帮助指南");
 }
 
-function listTasks() {
+async function listTasks() {
   const taskManager = TaskManager.getInstance();
+  await taskManager.initialize();
   const taskList = taskManager.getTaskList();
 
   console.log("可用的任务:");
   taskList.forEach((task) => {
-    console.log(`  ${task.name} - ${task.description}`);
+    console.log(`\n📋 ${task.name}`);
+    console.log(`   描述: ${task.description}`);
+    console.log(`   用法: ${task.usage}`);
   });
+ 
 }
 
 const app = new App();
@@ -117,7 +121,7 @@ async function main() {
         help();
         break;
       case "list":
-        listTasks();
+        await listTasks();
         break;
       default:
         if (!command) {

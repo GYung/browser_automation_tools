@@ -76,15 +76,19 @@ export class TaskManager {
   /**
    * 获取任务列表信息
    */
-  getTaskList(): Array<{ name: string; description: string }> {
-    const taskList = [
-      { name: "screen", description: "页面截图任务" },
-      { name: "scrape", description: "页面数据抓取任务" },
-      { name: "action", description: "页面操作任务" },
-    ];
+  getTaskList(): Array<{ name: string; description: string; usage: string }> {
+    const taskList: Array<{ name: string; description: string; usage: string }> = [];
 
-    // 只返回已注册的任务
-    return taskList.filter((task) => this.tasks.has(task.name));
+    // 遍历所有已注册的任务
+    for (const [name, task] of this.tasks.entries()) {
+      taskList.push({
+        name,
+        description: (task as any).getTaskDescription(),
+        usage: (task as any).getUsage(),
+      });
+    }
+
+    return taskList;
   }
 
   /**

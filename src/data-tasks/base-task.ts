@@ -25,12 +25,7 @@ export abstract class BaseTask {
     // 输出 - 传递采集结果
     const outputHandler = this.getOutputHandler();
     if (outputHandler) {
-      // 合并输入参数和采集结果
-      const outputInput = {
-        ...input,
-        ...acquisitionResult,
-      };
-      await outputHandler.execute(outputInput, context);
+      await outputHandler.execute(acquisitionResult, context);
     }
   }
 
@@ -46,4 +41,16 @@ export abstract class BaseTask {
    * @returns 输出处理器实例
    */
   protected abstract getOutputHandler(): OutputHandler;
+
+  /**
+   * 获取任务描述
+   * @returns 任务描述
+   */
+  protected abstract getTaskDescription(): string;
+
+  /**
+   * 获取使用方法
+   * @returns 使用方法说明
+   */
+  protected abstract getUsage(): string;
 }

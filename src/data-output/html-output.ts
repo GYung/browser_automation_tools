@@ -1,4 +1,4 @@
-import type { OutputHandler } from "../types";
+import type { OutputHandler, AcquisitionResult } from "../types";
 import * as fs from "fs/promises";
 import * as path from "path";
 import { BrowserManager } from "../core/browser-manager.js";
@@ -10,16 +10,16 @@ import { BrowserManager } from "../core/browser-manager.js";
 export class HtmlOutputHandler implements OutputHandler {
   /**
    * 实现接口方法 - 执行输出处理
-   * @param input - 输入参数
+   * @param input - 采集结果
    * @param context - 执行上下文
    * @returns 输出结果
    */
-  async execute(input: any, context: any) {
+  async execute(input: AcquisitionResult, context: any) {
     console.log(`HtmlOutputHandler开始生成HTML页面`);
 
     try {
       // 获取截图路径
-      const screenshotPath = input.screenshotPath || "./output/screenshot.png";
+      const screenshotPath = input.metadata?.screenshotPath || "./output/screenshot.png";
       const outputDir = path.dirname(screenshotPath);
       const htmlPath = path.join(outputDir, "screenshot-viewer.html");
 
@@ -42,9 +42,10 @@ export class HtmlOutputHandler implements OutputHandler {
       // 生成HTML内容
       const htmlContent = this.generateHtmlContent({
         screenshotPath: relativeScreenshotPath,
-        pageInfo: input.pageInfo || {},
-        timestamp: input.timestamp || new Date().toISOString(),
         url: input.url || "未知页面",
+        dataType: input.dataType,
+        data: input.data,
+        metadata: input.metadata || {},
       });
 
       // 写入HTML文件
@@ -73,13 +74,53 @@ export class HtmlOutputHandler implements OutputHandler {
   /**
    * 生成HTML内容
    */
-  private generateHtmlContent(data: {
+  private generateHtmlContent(inputData: {
     screenshotPath: string;
-    pageInfo: any;
-    timestamp: string;
     url: string;
+    dataType: string;
+    data: Map<string, any>;
+    metadata?: Record<string, any>;
   }): string {
-    const { screenshotPath, pageInfo, timestamp, url } = data;
+    const { screenshotPath, url, dataType, data, metadata } = inputData;
+
+    // 根据数据类型生成不同的展示内容
+    let dataContent = '';
+    if (dataType === 'image') {
+      dataContent = `
+        <div class="data-section">
+          <h3>📸 图片数据</h3>
+          <div class="data-item">
+            <span class="data-key">截图文件:</span>
+            <span class="data-value">${screenshotPath}</span>
+          </div>
+        </div>`;
+    } else if (dataType === 'text') {
+      dataContent = `
+        <div class="data-section">
+          <h3>📝 文本数据</h3>
+          ${Array.from(data.entries()).map(([key, value]) => `
+            <div class="data-item">
+              <span class="data-key">${key}:</span>
+              <span class="data-value">${this.formatValue(value)}</span>
+            </div>
+          `).join('')}
+        </div>`;
+    }
+
+    // 生成元数据内容
+    let metadataContent = '';
+    if (metadata && Object.keys(metadata).length > 0) {
+      metadataContent = `
+        <div class="data-section">
+          <h3>📋 元数据</h3>
+          ${Object.entries(metadata).map(([key, value]) => `
+            <div class="data-item">
+              <span class="data-key">${key}:</span>
+              <span class="data-value">${this.formatValue(value)}</span>
+            </div>
+          `).join('')}
+        </div>`;
+    }
 
     return `<!DOCTYPE html>
 <html lang="zh-CN">
@@ -118,12 +159,40 @@ export class HtmlOutputHandler implements OutputHandler {
         }
         .screenshot {
             text-align: center;
+            margin-bottom: 20px;
         }
         .screenshot img {
             max-width: 100%;
             height: auto;
             border: 1px solid #ddd;
             border-radius: 5px;
+        }
+        .data-section {
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 5px;
+            margin-bottom: 20px;
+        }
+        .data-section h3 {
+            margin-top: 0;
+            color: #333;
+        }
+        .data-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 8px 0;
+            border-bottom: 1px solid #eee;
+        }
+        .data-key {
+            font-weight: bold;
+            color: #555;
+            min-width: 120px;
+        }
+        .data-value {
+            color: #333;
+            word-break: break-all;
+            flex: 1;
+            margin-left: 10px;
         }
     </style>
 </head>
@@ -132,17 +201,33 @@ export class HtmlOutputHandler implements OutputHandler {
         <h1>📸 页面截图</h1>
         
         <div class="info">
-            <p><strong>页面标题:</strong> ${pageInfo.title || "未知标题"}</p>
             <p><strong>页面URL:</strong> <a href="${url}" target="_blank">${url}</a></p>
-            <p><strong>截图时间:</strong> ${new Date(timestamp).toLocaleString("zh-CN")}</p>
+            <p><strong>截图时间:</strong> ${new Date().toLocaleString("zh-CN")}</p>
+            <p><strong>数据类型:</strong> ${dataType}</p>
         </div>
         
         <div class="screenshot">
             <img src="${screenshotPath}" alt="页面截图" />
         </div>
+        
+        ${dataContent}
+        ${metadataContent}
     </div>
 </body>
 </html>`;
+  }
+
+  /**
+   * 格式化值显示
+   */
+  private formatValue(value: any): string {
+    if (value === null || value === undefined) {
+      return 'null';
+    }
+    if (typeof value === 'object') {
+      return JSON.stringify(value, null, 2);
+    }
+    return String(value);
   }
 
   /**
