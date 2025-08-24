@@ -1,12 +1,56 @@
+# Dependencies
 node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
 
+# Build outputs
+dist/
+build/
+*.tsbuildinfo
+
+# Runtime outputs
 output/
 logs/
 *.log
-dist/
-build/
-.idea/
 
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# Environment variables
 .env
 .env.local
 .env.*.local
+
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+.cache/
+
+# Screenshots and generated files (only in output directory)
+output/*.png
+output/*.jpg
+output/*.jpeg
+output/*.gif
+output/*.html
+output/*.txt
+
+# Coverage reports
+coverage/
+*.lcov
+
+# Test outputs
+test-results/

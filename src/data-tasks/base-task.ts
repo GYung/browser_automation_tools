@@ -1,34 +1,49 @@
-import type { AcquisitionHandler,OutputHandler } from "../types";
+import type {
+  AcquisitionHandler,
+  OutputHandler,
+  AcquisitionResult,
+} from "../types";
 
 /**
  * 任务基类 - 定义所有任务的基本结构和接口
  */
 export abstract class BaseTask {
-
-  async execute(context: any) {
-    // 采集
+  async execute(input: any, context: any) {
+    // 采集 - 采集器是必须的
     const acquisitionHandler = this.getAcquisitionHandler();
-    acquisitionHandler?.execute({}, context);
+    if (!acquisitionHandler) {
+      throw new Error("任务必须提供采集处理器 (AcquisitionHandler)");
+    }
 
-    // 输出
+    const acquisitionResult = await acquisitionHandler.execute(input, context);
+    
+    // 检查采集结果 - 如果没有采集到数据或采集失败，报错
+    if (!acquisitionResult || !acquisitionResult.success) {
+      throw new Error("没有采集到有效数据");
+    }
+
+    // 输出 - 传递采集结果
     const outputHandler = this.getOutputHandler();
-    outputHandler?.execute({}, context);
+    if (outputHandler) {
+      // 合并输入参数和采集结果
+      const outputInput = {
+        ...input,
+        ...acquisitionResult,
+      };
+      await outputHandler.execute(outputInput, context);
+    }
   }
 
-  // 搜集
+
   /**
-    * 获取数据处理处理器实例
-    * @returns 数据处理处理器实例
-    */
-  protected getAcquisitionHandler(): AcquisitionHandler | null {
-    return null;
-  }
-  // 整合
-  // 分析
-  // 输出
-  protected getOutputHandler(): OutputHandler | null {
-    return null;
-  }
+   * 获取采集处理器
+   * @returns 采集处理器实例
+   */
+  protected abstract getAcquisitionHandler(): AcquisitionHandler;
 
-
+  /**
+   * 获取输出处理器
+   * @returns 输出处理器实例
+   */
+  protected abstract getOutputHandler(): OutputHandler;
 }

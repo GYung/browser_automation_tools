@@ -9,7 +9,7 @@
     "test": "node tests/basic-test.js",
     "search": "node tests/search-test.js",
     "scrape": "node tests/scraping-test.js",
-    "task": "node dist/app.js"
+    "task": "tsc && node dist/app.js"
   },
   "dependencies": {
     "puppeteer": "^24.17.0"
