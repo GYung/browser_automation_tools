@@ -4,6 +4,7 @@ import * as fs from "fs/promises";
 import * as path from "path";
 import { ScreenshotUtils } from "../utils/screenshot-utils.js";
 import { BrowserManager } from "../core/browser-manager.js";
+import { LoginUtils, type LoginConfig } from "../utils/login-utils.js";
 
 /**
  * 页面截图数据采集器
@@ -41,6 +42,18 @@ export class PageScreenAcquisitionHandler implements AcquisitionHandler {
       const browserManager = BrowserManager.getInstance();
       const page = await browserManager.newPage();
       console.log(`📄 新页面创建成功`);
+
+      // 如果配置了登录信息，先执行登录
+      if (config.loginConfig) {
+        console.log(`🔐 检测到登录配置，开始登录流程`);
+        const loginResult = await LoginUtils.login(page, config.loginConfig);
+        
+        if (!loginResult.success) {
+          throw new Error(`登录失败: ${loginResult.message}`);
+        }
+        
+        console.log(`✅ 登录成功，继续执行截图任务`);
+      }
 
       // 使用截图工具执行截图操作
       const screenshotResult = await ScreenshotUtils.takeScreenshot(page, {
