@@ -1,8 +1,9 @@
-const launch = require("puppeteer").launch;
-const fs = require("fs").promises;
+import puppeteer from 'puppeteer';
+import { promises as fs } from 'fs';
 
 async function scrapeTest() {
-  const browser = await launch({
+  const browser = await puppeteer.launch({
+    executablePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
     headless: false,
     defaultViewport: { width: 1280, height: 720 },
   });
@@ -23,7 +24,7 @@ async function scrapeTest() {
   // 截图保存页面
   console.log("📸 截图保存页面...");
   await page.screenshot({
-    path: "github-trending.png",
+    path: "output/github-trending.png",
     fullPage: true,
   });
 
