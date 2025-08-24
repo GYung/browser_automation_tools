@@ -1,1 +1,7 @@
 output/
+logs/
+*.log
+dist/
+build/
+.idea/
+node_modules/
