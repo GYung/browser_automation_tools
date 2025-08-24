@@ -1,4 +1,4 @@
-import { launch } from 'puppeteer';
+const  launch = require('puppeteer').launch;
 async function basicTest() {
     // 启动浏览器
     const browser = await launch({
