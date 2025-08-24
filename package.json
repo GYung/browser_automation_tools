@@ -1,4 +1,11 @@
 {
+  "name":"browse_automation_tools",
+  "description": "浏览器自动化工具",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "test": "node tests/basic-test.js"
+  },
   "dependencies": {
     "puppeteer": "^24.17.0"
   }
