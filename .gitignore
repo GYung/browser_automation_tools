@@ -54,3 +54,7 @@ coverage/
 
 # Test outputs
 test-results/
+
+# Cookie files (contain sensitive login data)
+cookies/
+*.cookies.json

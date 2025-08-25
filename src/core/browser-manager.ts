@@ -1,4 +1,6 @@
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
+import { CookieManager } from './cookie-manager.js';
+import { appConfig } from '../config/index.js';
 
 /**
  * 浏览器管理器
@@ -32,18 +34,60 @@ export class BrowserManager {
 
         console.log('🚀 初始化浏览器...');
         
-        // 直接使用本地 Chrome 路径
-        const chromePath = '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome';
-        console.log(`🔍 使用系统 Chrome: ${chromePath}`);
+        console.log(`🔍 使用系统 Chrome: ${appConfig.chromePath}`);
         
         this.browser = await puppeteer.launch({
-            executablePath: chromePath,
-            headless: false, // 使用有头模式
-            defaultViewport: { width: 1280, height: 720 },
+            executablePath: appConfig.chromePath,
+            headless: appConfig.headless,
+            defaultViewport: appConfig.viewport,
         });
+
+        // 初始化时处理登录
+        await this.initializeLogin();
 
         this.isInitialized = true;
         console.log('✅ 浏览器初始化完成');
+    }
+
+    /**
+     * 初始化登录状态
+     */
+    private async initializeLogin() {
+        console.log('🔐 初始化登录状态...');
+        
+        // 只处理百度登录
+        const loginConfig = appConfig.baidu;
+        console.log(`🔐 初始化 ${loginConfig.name} 登录状态...`);
+        
+        // 检查本地是否有 cookies
+        const hasLocalCookies = await CookieManager.hasValidCookies(loginConfig.domain);
+        
+        if (hasLocalCookies) {
+            // 本地有 cookies，注入到浏览器
+            console.log(`🍪 发现本地 ${loginConfig.name} cookies，注入到浏览器...`);
+            await CookieManager.loadCookiesToBrowser(this.browser, loginConfig.domain);
+            console.log(`✅ ${loginConfig.name} 登录状态初始化完成`);
+        } else {
+            // 本地没有 cookies，跳转到登录页面
+            console.log(`🔐 本地没有 ${loginConfig.name} cookies，跳转到登录页面...`);
+            const page = await this.browser.newPage();
+            await page.goto(loginConfig.loginUrl, {
+                waitUntil: 'networkidle2',
+                timeout: appConfig.pageLoadTimeout,
+            });
+            
+            // 等待用户登录
+            console.log(`⏳ 等待 ${appConfig.loginWaitTimeout / 1000} 秒让用户登录...`);
+            await new Promise(resolve => setTimeout(resolve, appConfig.loginWaitTimeout));
+            
+            // 保存当前页面的 cookies 到本地
+            console.log(`💾 保存登录后的 cookies 到本地...`);
+            await CookieManager.saveCookies(page, loginConfig.domain);
+            
+            // 关闭登录页面
+            await page.close();
+            console.log(`✅ ${loginConfig.name} 登录状态初始化完成`);
+        }
     }
 
     /**
@@ -74,6 +118,28 @@ export class BrowserManager {
      */
     async newPage() {
         const browser = this.getBrowser();
-        return await browser.newPage();
+        const page = await browser.newPage();
+        return page;
     }
+
+    /**
+     * 创建新页面并导航到指定 URL
+     * @param url 目标 URL
+     * @returns 页面实例
+     */
+    async newPageWithUrl(url: string) {
+        const page = await this.newPage();
+        
+        // 直接导航到目标页面（登录状态已在初始化时处理）
+        await page.goto(url, {
+            waitUntil: 'networkidle2',
+            timeout: appConfig.pageLoadTimeout,
+        });
+        
+        return page;
+    }
+
+
+
+
 }
