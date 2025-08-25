@@ -9,6 +9,8 @@ export interface ScreenshotTask {
   url: string;
   filename: string;
   waitTime: number;
+  selector?: string; // 要点击的元素选择器
+  clickWaitTime?: number; // 点击后等待时间
 }
 
 /**
@@ -30,9 +32,11 @@ export const screenshotConfigs: ScreenshotConfig = {
       waitTime: 2000,
     },
     {
-      url: 'https://www.baidu.com/s?wd=test',
-      filename: 'baidu_search.png',
+      url: 'https://www.baidu.com',
+      filename: 'baidu_click_search.png',
       waitTime: 2000,
+      selector: '#chat-submit-button', // 百度一下按钮
+      clickWaitTime: 3000, // 点击后等待3秒
     },
   ],
 
