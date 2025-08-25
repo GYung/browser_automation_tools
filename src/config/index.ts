@@ -4,11 +4,11 @@
 export const appConfig = {
   // 浏览器配置
   chromePath: '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
-  viewport: { width: 1280, height: 720 },
+  viewport: { width: 1920, height: 1080 },
   headless: false,
   
   // 登录配置
-  baidu: {
+  login: {
     domain: 'www.baidu.com',
     loginUrl: 'https://passport.baidu.com/v2/?login',
     name: '百度',

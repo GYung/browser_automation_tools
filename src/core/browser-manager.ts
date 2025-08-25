@@ -56,7 +56,7 @@ export class BrowserManager {
         console.log('🔐 初始化登录状态...');
         
         // 只处理百度登录
-        const loginConfig = appConfig.baidu;
+        const loginConfig = appConfig.login;
         console.log(`🔐 初始化 ${loginConfig.name} 登录状态...`);
         
         // 检查本地是否有 cookies

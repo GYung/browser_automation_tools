@@ -18,30 +18,33 @@ export class HtmlOutputHandler implements OutputHandler {
     console.log(`HtmlOutputHandler开始生成HTML页面`);
 
     try {
-      // 获取截图路径
-      const screenshotPath = input.metadata?.screenshotPath || "./output/screenshot.png";
-      const outputDir = path.dirname(screenshotPath);
+      // 获取截图数据
+      const screenshots = input.data;
+      const outputDir = "./output";
       const htmlPath = path.join(outputDir, "screenshot-viewer.html");
 
       // 确保输出目录存在
       await fs.mkdir(outputDir, { recursive: true });
 
-      // 检查截图文件是否存在
-      try {
-        await fs.access(screenshotPath);
-        console.log(`📸 找到截图文件: ${screenshotPath}`);
-      } catch (error) {
-        console.error(`❌ 截图文件不存在: ${screenshotPath}`);
-        throw new Error(`截图文件不存在: ${screenshotPath}`);
+      // 检查所有截图文件是否存在
+      const validScreenshots = new Map<string, string>();
+      for (const [filename, screenshotPath] of screenshots.entries()) {
+        try {
+          await fs.access(screenshotPath);
+          console.log(`📸 找到截图文件: ${screenshotPath}`);
+          validScreenshots.set(filename, screenshotPath);
+        } catch (error) {
+          console.warn(`⚠️ 截图文件不存在: ${screenshotPath}`);
+        }
       }
 
-      // 获取截图文件的相对路径（用于HTML中的img src）
-      const screenshotFileName = path.basename(screenshotPath);
-      const relativeScreenshotPath = `./${screenshotFileName}`;
+      if (validScreenshots.size === 0) {
+        throw new Error("没有找到有效的截图文件");
+      }
 
       // 生成HTML内容
       const htmlContent = this.generateHtmlContent({
-        screenshotPath: relativeScreenshotPath,
+        screenshots: validScreenshots,
         url: input.url || "未知页面",
         dataType: input.dataType,
         data: input.data,
@@ -55,14 +58,6 @@ export class HtmlOutputHandler implements OutputHandler {
       // 在浏览器中打开HTML文件
       await this.openInBrowser(htmlPath);
 
-      // 返回结果
-      const result = {
-        success: true,
-        htmlPath: htmlPath,
-        screenshotPath: screenshotPath,
-        timestamp: new Date().toISOString(),
-      };
-
       console.log(`🎉 HTML输出处理完成`);
       // 不返回结果，符合 OutputHandler 接口
     } catch (error) {
@@ -75,13 +70,13 @@ export class HtmlOutputHandler implements OutputHandler {
    * 生成HTML内容
    */
   private generateHtmlContent(inputData: {
-    screenshotPath: string;
+    screenshots: Map<string, string>;
     url: string;
     dataType: string;
     data: Map<string, any>;
     metadata?: Record<string, any>;
   }): string {
-    const { screenshotPath, url, dataType, data, metadata } = inputData;
+    const { screenshots, url, dataType, data, metadata } = inputData;
 
     // 根据数据类型生成不同的展示内容
     let dataContent = '';
@@ -89,10 +84,12 @@ export class HtmlOutputHandler implements OutputHandler {
       dataContent = `
         <div class="data-section">
           <h3>📸 图片数据</h3>
-          <div class="data-item">
-            <span class="data-key">截图文件:</span>
-            <span class="data-value">${screenshotPath}</span>
-          </div>
+          ${Array.from(screenshots.entries()).map(([filename, screenshotPath]) => `
+            <div class="data-item">
+              <span class="data-key">${filename}:</span>
+              <span class="data-value">${screenshotPath}</span>
+            </div>
+          `).join('')}
         </div>`;
     } else if (dataType === 'text') {
       dataContent = `
@@ -157,15 +154,23 @@ export class HtmlOutputHandler implements OutputHandler {
             margin: 5px 0;
             color: #666;
         }
-        .screenshot {
-            text-align: center;
+        .screenshots {
             margin-bottom: 20px;
         }
-        .screenshot img {
+        .screenshot-item {
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        .screenshot-item h3 {
+            color: #333;
+            margin-bottom: 10px;
+        }
+        .screenshot-item img {
             max-width: 100%;
             height: auto;
             border: 1px solid #ddd;
             border-radius: 5px;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
         }
         .data-section {
             background: #f8f9fa;
@@ -206,8 +211,13 @@ export class HtmlOutputHandler implements OutputHandler {
             <p><strong>数据类型:</strong> ${dataType}</p>
         </div>
         
-        <div class="screenshot">
-            <img src="${screenshotPath}" alt="页面截图" />
+        <div class="screenshots">
+            ${Array.from(screenshots.entries()).map(([filename, screenshotPath]) => `
+                <div class="screenshot-item">
+                    <h3>${filename}</h3>
+                    <img src="./${path.basename(screenshotPath)}" alt="${filename}" />
+                </div>
+            `).join('')}
         </div>
         
         ${dataContent}
@@ -251,3 +261,4 @@ export class HtmlOutputHandler implements OutputHandler {
     }
   }
 }
+

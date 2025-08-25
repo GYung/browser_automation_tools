@@ -7,7 +7,7 @@ export interface ScreenshotConfig {
   url: string;
   screenshotPath: string;
   waitTime?: number;
-  fullPage?: boolean;
+  format?: 'png' | 'jpeg' | 'webp';
 }
 
 /**
@@ -55,7 +55,7 @@ export class ScreenshotUtils {
       console.log(`📸 开始截图...`);
       const screenshot = await page.screenshot({
         path: config.screenshotPath as any,
-        fullPage: config.fullPage || false,
+        fullPage: true, // 默认全页面截图
       });
       console.log(`✅ 截图完成: ${config.screenshotPath}`);
 
