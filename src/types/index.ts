@@ -1,10 +1,3 @@
-/**
- * 页面信息结构
- */
-export interface PageInfo {
-  title: string;
-  url: string;
-}
 
 /**
  * 数据类型枚举

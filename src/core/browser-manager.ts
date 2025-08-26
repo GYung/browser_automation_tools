@@ -128,13 +128,14 @@ export class BrowserManager {
      * @returns 页面实例
      */
     async newPageWithUrl(url: string) {
+        console.log(`🔗 正在访问页面...`);
         const page = await this.newPage();
-        
         // 直接导航到目标页面（登录状态已在初始化时处理）
         await page.goto(url, {
             waitUntil: 'networkidle2',
             timeout: appConfig.pageLoadTimeout,
         });
+        console.log(`✅ 页面加载完成`);
         
         return page;
     }

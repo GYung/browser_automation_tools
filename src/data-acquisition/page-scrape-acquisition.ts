@@ -34,15 +34,12 @@ export class PageScrapeAcquisitionHandler implements AcquisitionHandler {
     console.log(`🌐 准备爬取页面: ${config.url}`);
 
     try {
-      console.log(`🚀 使用共享浏览器实例`);
-
       // 从浏览器管理器获取浏览器实例并创建新页面
       const browserManager = BrowserManager.getInstance();
-      const page = await browserManager.newPage();
-
+      const page = await browserManager.newPageWithUrl(config.url);
+    
       // 使用抓取工具执行页面数据抓取
       const scrapeResult = await ScrapeUtils.scrapePageData(page, {
-        url: config.url,
         waitTime: config.waitTime,
         textElements: config.textElements,
       });

@@ -36,20 +36,7 @@ export class PageActionAcquisitionHandler implements AcquisitionHandler {
 
       // 从浏览器管理器获取浏览器实例并创建新页面
       const browserManager = BrowserManager.getInstance();
-      const page = await browserManager.newPage();
-
-      // 设置页面视口
-      await page.setViewport({ width: 1920, height: 1080 });
-      console.log(`📄 新页面创建成功`);
-
-      // 访问页面
-      console.log(`🔗 正在访问页面...`);
-      await page.goto(config.url, {
-        waitUntil: "networkidle2",
-        timeout: 30000,
-      });
-
-      console.log(`✅ 页面加载完成`);
+      const page = await browserManager.newPageWithUrl(config.url);
 
       // 等待页面稳定（缩短等待时间）
       if (config.waitTime > 0) {

@@ -13,7 +13,6 @@ export interface TextElementConfig {
  * 抓取配置接口
  */
 export interface ScrapeConfig {
-  url: string;
   waitTime?: number;
   textElements?: TextElementConfig[];
 }
@@ -42,17 +41,8 @@ export class ScrapeUtils {
    */
   static async scrapePageData(page: Page, config: ScrapeConfig): Promise<ScrapeResult> {
     console.log(`📊 开始页面数据抓取`);
-    console.log(`🌐 目标页面: ${config.url}`);
 
     try {
-      // 访问页面
-      console.log(`🔗 正在访问页面...`);
-      await page.goto(config.url, {
-        waitUntil: "networkidle2",
-        timeout: 30000,
-      });
-      console.log(`✅ 页面加载完成`);
-
       // 等待指定时间
       if (config.waitTime && config.waitTime > 0) {
         console.log(`⏳ 等待 ${config.waitTime}ms...`);

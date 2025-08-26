@@ -33,6 +33,7 @@ class App {
    * 关闭浏览器
    */
   async closeBrowser() {
+    await new Promise(resolve => setTimeout(resolve, 60000));
     await this.browserManager.close();
   }
 
@@ -130,6 +131,7 @@ async function main() {
         }
         await app.runTask(command, params);
         // 任务完成后退出，保持浏览器运行
+        await app.closeBrowser();
         // process.exit(0);
         break;
     }

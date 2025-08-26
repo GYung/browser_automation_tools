@@ -9,6 +9,8 @@
     "test": "node tests/basic-test.js",
     "search": "node tests/search-test.js",
     "scrape": "node tests/scraping-test.js",
+    "help": "node dist/app.js help",
+    "list": "node dist/app.js list",
     "task": "tsc && node dist/app.js"
   },
   "devDependencies": {

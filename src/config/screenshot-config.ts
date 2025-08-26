@@ -2,6 +2,19 @@
  * 截图配置管理
  */
 
+
+export interface OperationConfig {
+  type: string;
+  key?: string; // 按键名称，如 'Enter', 'Tab', 'Escape' 等
+  selector?: string; // 输入框选择器
+  value?: string; // 要输入的值
+  waitTime?: number; // 输入后等待时间
+  // 复杂点击配置
+  parentSelector?: string; // 父元素选择器
+  childIndex?: number; // 子元素索引（从0开始）
+  childSelector?: string; // 子元素选择器
+}
+
 /**
  * 截图任务配置
  */
@@ -9,8 +22,7 @@ export interface ScreenshotTask {
   url: string;
   filename: string;
   waitTime: number;
-  selector?: string; // 要点击的元素选择器
-  clickWaitTime?: number; // 点击后等待时间
+  operations?: Array<OperationConfig>;
 }
 
 /**
@@ -28,15 +40,20 @@ export const screenshotConfigs: ScreenshotConfig = {
   baidu: [
     {
       url: 'https://www.baidu.com',
-      filename: 'baidu_homepage.png',
+      filename: 'baidu_search_click.png',
       waitTime: 2000,
-    },
-    {
-      url: 'https://www.baidu.com',
-      filename: 'baidu_click_search.png',
-      waitTime: 2000,
-      selector: '#chat-submit-button', // 百度一下按钮
-      clickWaitTime: 3000, // 点击后等待3秒
+      operations:[
+        {
+          type:'input',
+          selector: '#chat-textarea', // 百度搜索框
+          value: 'AI写作',
+          waitTime: 1000, // 输入后等待1秒
+        },{
+          type:'keyboard',
+          key: 'Enter', // 按回车键提交搜索
+          waitTime: 2000, // 按键后等待2秒
+        }
+      ]
     },
   ],
 
@@ -46,6 +63,29 @@ export const screenshotConfigs: ScreenshotConfig = {
       url: 'https://www.baidu.com',
       filename: 'quick_test.png',
       waitTime: 500,
+    },
+  ],
+
+  // 复杂点击示例配置
+  'click-example': [
+    {
+      url: 'https://example.com/table',
+      filename: 'table_click_example.png',
+      waitTime: 2000,
+      operations: [
+        {
+          type: 'click-child',
+          parentSelector: 'tr', // 选择tr元素
+          childIndex: 1, // 点击第二个td元素（索引从0开始）
+          waitTime: 1000,
+        },
+        {
+          type: 'click-child',
+          parentSelector: 'tr.button-row', // 选择特定的tr
+          childSelector: 'td.action-button', // 点击包含action-button类的td
+          waitTime: 1000,
+        }
+      ]
     },
   ],
 

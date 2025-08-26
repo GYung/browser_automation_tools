@@ -2,9 +2,13 @@ import type { AcquisitionHandler, AcquisitionResult } from "../types/index.js";
 import { DataType } from "../types/index.js";
 import * as fs from "fs/promises";
 import { ScreenshotUtils } from "../utils/screenshot-utils.js";
+import { ClickUtils } from "../utils/click-utils.js";
+import { InputUtils } from "../utils/input-utils.js";
 import { BrowserManager } from "../core/browser-manager.js";
 import { getScreenshotConfig, generateScreenshotPath, type ScreenshotTask } from "../config/screenshot-config.js";
 import type { Page } from "puppeteer-core";
+import { BrowserController } from "../core/browser-controller.js";
+import { appConfig } from "../config/index.js";
 
 /**
  * 页面截图数据采集器
@@ -37,20 +41,20 @@ export class PageScreenAcquisitionHandler implements AcquisitionHandler {
         
         console.log(`\n🔄 执行任务 ${i + 1}/${tasks.length}: ${task.url}`);
         
+         // 直接导航到目标页面（登录状态已在初始化时处理）
         const page = await browserManager.newPageWithUrl(task.url);
-        
-        try {
-          // 执行点击操作（如果有配置）
-          if (task.selector) {
-            await this.handleClick(page, task);
-          }
+       
+  
+         try {
+           // 执行操作
+           await BrowserController.getInstance().execute(page, task.operations || []);
 
           // 执行截图
           const screenshotPath = generateScreenshotPath(task.filename || `screenshot-${i + 1}`);
           const screenshotResult = await ScreenshotUtils.takeScreenshot(page, {
             url: task.url,
             screenshotPath,
-            waitTime: task.selector ? 0 : task.waitTime,
+            waitTime: task.waitTime,
           });
 
           if (!screenshotResult.success) {
@@ -59,7 +63,7 @@ export class PageScreenAcquisitionHandler implements AcquisitionHandler {
 
           results.push({
             url: task.url,
-            selector: task.selector,
+            selector: "没什么用",
             filename: task.filename || `screenshot-${i + 1}`,
             screenshotPath,
             success: true,
@@ -90,23 +94,5 @@ export class PageScreenAcquisitionHandler implements AcquisitionHandler {
       throw error;
     }
   }
-
-  /**
-   * 处理点击操作
-   */
-  private async handleClick(page: Page, task: ScreenshotTask): Promise<void> {
-    try {
-      console.log(`🎯 点击元素: ${task.selector}`);
-      await page.waitForSelector(task.selector!, { timeout: 10000 });
-      await page.click(task.selector!);
-      console.log(`✅ 点击成功`);
-
-      if (task.clickWaitTime && task.clickWaitTime > 0) {
-        console.log(`⏳ 等待 ${task.clickWaitTime}ms...`);
-        await new Promise(resolve => setTimeout(resolve, task.clickWaitTime));
-      }
-    } catch (error) {
-      console.warn(`⚠️ 点击失败，继续截图: ${error}`);
-    }
-  }
+ 
 }
