@@ -44,14 +44,8 @@ export const screenshotConfigs: ScreenshotConfig = {
       waitTime: 2000,
       operations:[
         {
-          type:'input',
-          selector: '#chat-textarea', // 百度搜索框
-          value: 'AI写作',
-          waitTime: 1000, // 输入后等待1秒
-        },{
-          type:'keyboard',
-          key: 'Enter', // 按回车键提交搜索
-          waitTime: 2000, // 按键后等待2秒
+          type:'config',
+          key: 'search', 
         }
       ]
     },

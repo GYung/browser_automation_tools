@@ -1,8 +1,9 @@
 import { Page } from "puppeteer-core";
 import { InputUtils } from "../utils/input-utils.js";
 import { ClickUtils } from "../utils/click-utils.js";
-import { OperationConfig } from "../config/screenshot-config.js";
+import { OperationConfig, ScreenshotTask } from "../config/screenshot-config.js";
 import { KeyboardUtils } from "../utils/keyboard-utils.js";
+import { getMetaConfig } from "../config/page-meta-config.js";
 
 export class BrowserController {
 
@@ -17,21 +18,46 @@ export class BrowserController {
         return BrowserController.instance;
     }
 
-    async execute(page:Page, operations:Array<OperationConfig>) : Promise<void> {
-        for(const operation of operations){
-            if(operation.type === 'input'){
-               await this.handleInput(page, operation);
-            }
-            if(operation.type === 'keyboard'){
-                await this.handleKeyboard(page, operation);
-            }
-            if(operation.type === 'click'){
-                await this.handleClick(page, operation);
-            }
-            if(operation.type === 'click-child'){
-                await this.handleClickChild(page, operation);
-            }
+    async execute(page:Page, taksConfig:ScreenshotTask) : Promise<void> {
+      const url = taksConfig.url;
+      const operations = taksConfig.operations || [];
+      for(const operation of operations){
+        if(operation.type === 'config'){
+          const metaConfigMap = getMetaConfig(url)
+          const metaConfig = metaConfigMap.get(operation.key || "")
+          if(!metaConfig){
+            continue;
+          }
+          console.log('✅ 基于页面元配置执行');
+          await this.batchExecute(page, metaConfig.operations || [])
+        } else {
+          await this.signleExecute(page,operation)
         }
+      }
+    }
+
+    private async batchExecute(page:Page, operations:Array<OperationConfig>) : Promise<void> {
+      if(operations.length == 0){
+        return;
+      }
+      for(const operation of operations){
+        await this.signleExecute(page,operation)
+      }
+    }
+
+    private async signleExecute(page:Page, operation:OperationConfig) : Promise<void> {
+      if(operation.type === 'input'){
+        await this.handleInput(page, operation);
+     }
+     if(operation.type === 'keyboard'){
+         await this.handleKeyboard(page, operation);
+     }
+     if(operation.type === 'click'){
+         await this.handleClick(page, operation);
+     }
+     if(operation.type === 'click-child'){
+         await this.handleClickChild(page, operation);
+     }
     }
 
    /**

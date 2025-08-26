@@ -2,8 +2,6 @@ import type { AcquisitionHandler, AcquisitionResult } from "../types/index.js";
 import { DataType } from "../types/index.js";
 import * as fs from "fs/promises";
 import { ScreenshotUtils } from "../utils/screenshot-utils.js";
-import { ClickUtils } from "../utils/click-utils.js";
-import { InputUtils } from "../utils/input-utils.js";
 import { BrowserManager } from "../core/browser-manager.js";
 import { getScreenshotConfig, generateScreenshotPath, type ScreenshotTask } from "../config/screenshot-config.js";
 import type { Page } from "puppeteer-core";
@@ -47,7 +45,7 @@ export class PageScreenAcquisitionHandler implements AcquisitionHandler {
   
          try {
            // 执行操作
-           await BrowserController.getInstance().execute(page, task.operations || []);
+           await BrowserController.getInstance().execute(page, task);
 
           // 执行截图
           const screenshotPath = generateScreenshotPath(task.filename || `screenshot-${i + 1}`);
