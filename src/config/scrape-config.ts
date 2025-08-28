@@ -1,3 +1,5 @@
+import { OperationType } from "../types";
+
 /**
  * 抓取元素配置
  */
@@ -20,7 +22,7 @@ export interface ScrapeTask {
   waitTime?: number; // 页面加载后等待时间
   elements: ScrapeElementConfig[]; // 要抓取的元素配置
   operations?: Array<{
-    type: string;
+    type: OperationType;
     key?: string;
     selector?: string;
     value?: string;
@@ -45,7 +47,7 @@ export const scrapeConfigs: ScrapeConfig = {
   // 快速测试抓取
   baidu: [
     {
-      url: 'https://www.baidu.com',
+      url: 'https://www.baidu.com/#/test?start=2025-08-25%2019:00:23&end=1756395510809',
       taskName: '快速测试抓取',
       filename: 'quick-test-data.txt',
       waitTime: 3000,

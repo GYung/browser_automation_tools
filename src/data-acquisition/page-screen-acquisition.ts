@@ -52,7 +52,7 @@ export class PageScreenAcquisitionHandler implements AcquisitionHandler {
           const screenshotResult = await ScreenshotUtils.takeScreenshot(page, {
             url: task.url,
             screenshotPath,
-            waitTime: task.waitTime,
+            waitTime: task.waitTime || 2000,
           });
 
           if (!screenshotResult.success) {

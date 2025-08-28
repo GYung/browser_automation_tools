@@ -52,7 +52,7 @@ export class PageScrapeAcquisitionHandler implements AcquisitionHandler {
               url: task.url,
               filename: `${task.taskName}_screenshot.png`, // 临时文件名
               waitTime: task.waitTime || 2000,
-              operations: task.operations,
+              operations: task.operations as any, // 类型转换，因为 ScrapeTask 和 ScreenshotTask 的 operations 类型不同
             };
             await BrowserController.getInstance().execute(page, browserTask);
           }

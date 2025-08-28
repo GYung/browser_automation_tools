@@ -2,27 +2,13 @@
  * 截图配置管理
  */
 
-
-export interface OperationConfig {
-  type: string;
-  key?: string; // 按键名称，如 'Enter', 'Tab', 'Escape' 等
-  selector?: string; // 输入框选择器
-  value?: string; // 要输入的值
-  waitTime?: number; // 输入后等待时间
-  // 复杂点击配置
-  parentSelector?: string; // 父元素选择器
-  childIndex?: number; // 子元素索引（从0开始）
-  childSelector?: string; // 子元素选择器
-}
+import { Task,  OperationType } from "../types/index.js";
 
 /**
  * 截图任务配置
  */
-export interface ScreenshotTask {
-  url: string;
-  filename: string;
-  waitTime: number;
-  operations?: Array<OperationConfig>;
+export interface ScreenshotTask extends Task {
+  filename: string; // 截图文件名
 }
 
 /**
@@ -44,7 +30,7 @@ export const screenshotConfigs: ScreenshotConfig = {
       waitTime: 2000,
       operations:[
         {
-          type:'config',
+          type: OperationType.CONFIG,
           key: 'search', 
         }
       ]
@@ -68,13 +54,13 @@ export const screenshotConfigs: ScreenshotConfig = {
       waitTime: 2000,
       operations: [
         {
-          type: 'click-child',
+          type: OperationType.CLICK_CHILD,
           parentSelector: 'tr', // 选择tr元素
           childIndex: 1, // 点击第二个td元素（索引从0开始）
           waitTime: 1000,
         },
         {
-          type: 'click-child',
+          type: OperationType.CLICK_CHILD,
           parentSelector: 'tr.button-row', // 选择特定的tr
           childSelector: 'td.action-button', // 点击包含action-button类的td
           waitTime: 1000,

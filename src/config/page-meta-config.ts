@@ -2,7 +2,7 @@
  * 页面元信息配置
  */
 
-import { OperationConfig } from "./screenshot-config";
+import { OperationType,OperationConfig } from "../types/index.js";
 
 
 /**
@@ -30,12 +30,12 @@ export const pageMetaConfigs: PageMetaConfig = {
       desc: '搜索',
     operations:[
       {
-        type:'input',
+        type: OperationType.INPUT,
         selector: '#chat-textarea', // 百度搜索框
         value: 'AI写作',
         waitTime: 1000, // 输入后等待1秒
       },{
-        type:'keyboard',
+        type: OperationType.KEYBOARD,
         key: 'Enter', // 按回车键提交搜索
         waitTime: 2000, // 按键后等待2秒
       }

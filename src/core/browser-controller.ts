@@ -1,8 +1,10 @@
 import { Page } from "puppeteer-core";
 import { InputUtils } from "../utils/input-utils.js";
 import { ClickUtils } from "../utils/click-utils.js";
-import { OperationConfig, ScreenshotTask } from "../config/screenshot-config.js";
+import { ScreenshotTask } from "../config/screenshot-config.js";
 import { KeyboardUtils } from "../utils/keyboard-utils.js";
+import { MouseUtils } from "../utils/mouse-utils.js";
+import { OperationType, OperationConfig } from "../types/index.js";
 import { getMetaConfig } from "../config/page-meta-config.js";
 
 export class BrowserController {
@@ -22,7 +24,7 @@ export class BrowserController {
       const url = taskConfig.url;
       const operations = taskConfig.operations || [];
       for(const operation of operations){
-        if(operation.type === 'config'){
+        if(operation.type === OperationType.CONFIG){
           const metaConfigMap = getMetaConfig(url)
           const metaConfig = metaConfigMap.get(operation.key || "")
           if(!metaConfig){
@@ -47,17 +49,23 @@ export class BrowserController {
     }
 
     private async singleExecute(page:Page, operation:OperationConfig) : Promise<void> {
-      if(operation.type === 'input'){
+      if(operation.type === OperationType.INPUT){
         await this.handleInput(page, operation);
      }
-     if(operation.type === 'keyboard'){
+     if(operation.type === OperationType.KEYBOARD){
          await this.handleKeyboard(page, operation);
      }
-     if(operation.type === 'click'){
+     if(operation.type === OperationType.CLICK){
          await this.handleClick(page, operation);
      }
-     if(operation.type === 'click-child'){
+     if(operation.type === OperationType.CLICK_CHILD){
          await this.handleClickChild(page, operation);
+     }
+     if(operation.type === OperationType.MOUSE_MOVE){
+         await this.handleMouseMoveCenter(page, operation);
+     }
+     if(operation.type === OperationType.MOUSE_MOVE_CLICK){
+         await this.handleMouseMoveCenter(page, operation);
      }
     }
 
@@ -85,11 +93,25 @@ export class BrowserController {
   private async handleKeyboard(page: Page, optration: OperationConfig): Promise<void> {
     if (!optration.key) return;
 
-    const result = await KeyboardUtils.pressKey(page, {
-      key: optration.key,
-      waitTime: optration.waitTime || 0,
-      timeout: 10000
-    });
+    let result: any;
+
+    // 特殊处理：当 key 为 'input' 时，使用文本输入方法
+    if (optration.key === 'Input') {
+      
+      result = await KeyboardUtils.typeText(page, {
+        key:optration.key,
+        value: optration.value || '',
+        waitTime: optration.waitTime || 0,
+        timeout: 10000
+      });
+    } else {
+      // 常规按键处理 
+      result = await KeyboardUtils.pressKey(page, {
+        key: optration.key,
+        waitTime: optration.waitTime || 0,
+        timeout: 10000
+      });
+    }
 
     if (!result.success) {
       console.warn(`⚠️ 按键失败，继续执行: ${result.error}`);
@@ -132,6 +154,34 @@ export class BrowserController {
 
     if (!result.success) {
       console.warn(`⚠️ 点击子元素失败，继续执行: ${result.error}`);
+    }
+  }
+  /**
+   * 处理鼠标移动并点击操作
+   */
+  private async handleMouseMoveCenter(page: Page, operation: OperationConfig): Promise<void> {
+    const mouseUtils = new MouseUtils(page);
+
+    try {
+      if (!operation.selector) {
+        console.warn('⚠️ 鼠标移动点击操作需要指定 selector');
+        return;
+      }
+
+      const element = await page.$(operation.selector);
+      if (!element) {
+        console.warn(`⚠️ 未找到元素: ${operation.selector}`);
+        return;
+      }
+
+      // 先移动到元素中心
+      await mouseUtils.moveToElementCenter(element, {
+  
+      });
+      
+    
+    } catch (error) {
+      console.warn(`⚠️ 鼠标移动点击失败，继续执行: ${error}`);
     }
   }
 
