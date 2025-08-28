@@ -55,6 +55,7 @@ export class ScrapeUtils {
           title: "",
           description: "",
           textElements: {},
+          debug: [], // 添加调试信息
         };
 
         // 获取页面标题
@@ -79,18 +80,20 @@ export class ScrapeUtils {
           scrapeConfig.textElements.forEach((elementConfig) => {
             try {
               const elements = document.querySelectorAll(elementConfig.selector);
+              result.debug.push(`🔍 选择器 ${elementConfig.selector} 找到 ${elements.length} 个元素`);
+              
               const data = Array.from(elements)
                 .map((el: any) => {
                   const item: any = {
                     text: el.textContent?.trim() || "",
-                    tag: el.tagName.toLowerCase(),
                   };
 
-                  // 添加指定的属性
+                  // 添加指定的属性（除了textContent，因为已经有text了）
                   if (elementConfig.attributes) {
                     elementConfig.attributes.forEach((attr) => {
                       if (attr === 'textContent') {
-                        item[attr] = el.textContent?.trim() || "";
+                        // 跳过textContent，因为已经有text了
+                        return;
                       } else if (attr === 'innerHTML') {
                         item[attr] = el.innerHTML || "";
                       } else if (attr === 'outerHTML') {
@@ -104,16 +107,20 @@ export class ScrapeUtils {
                   return item;
                 })
                 .filter((item) => {
-                  // 过滤条件：文本长度大于3个字符，且不是纯空白字符
+                  // 过滤条件：文本不为空且不是纯空白字符
                   const text = item.text;
-                  return text.length > 3 && 
-                         text.trim().length > 0 && 
-                         !/^\s*$/.test(text);
+                  const isValid = text.trim().length > 0 && !/^\s*$/.test(text);
+                  if (!isValid && text.trim().length > 0) {
+                    result.debug.push(`⚠️ 过滤掉元素: ${item.tag} - "${text}"`);
+                  }
+                  return isValid;
                 })
                 .slice(0, 50); // 每个选择器最多取50个元素
 
+              result.debug.push(`✅ ${elementConfig.name}: 找到 ${data.length} 个有效元素`);
               result.textElements[elementConfig.name] = data;
             } catch (e) {
+              result.debug.push(`❌ ${elementConfig.name}: 抓取失败 - ${e instanceof Error ? e.message : String(e)}`);
               result.textElements[elementConfig.name] = [];
             }
           });
@@ -123,6 +130,12 @@ export class ScrapeUtils {
       }, config);
 
       console.log(`✅ 页面数据抓取完成`);
+
+      // 输出调试信息
+      if (pageData.debug && pageData.debug.length > 0) {
+        console.log('🔍 调试信息:');
+        pageData.debug.forEach((msg: string) => console.log(msg));
+      }
 
       return {
         success: true,

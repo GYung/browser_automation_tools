@@ -54,9 +54,13 @@ export class BrowserManager {
      */
     private async initializeLogin() {
         console.log('🔐 初始化登录状态...');
-        
-        // 只处理百度登录
-        const loginConfig = appConfig.login;
+       // 初始化登录cookie
+       for(const loginConfig of appConfig.logins) {
+        await this.initLoginCookie(loginConfig || [])
+       }
+    }
+
+    private async initLoginCookie(loginConfig:any){
         console.log(`🔐 初始化 ${loginConfig.name} 登录状态...`);
         
         // 检查本地是否有 cookies
@@ -139,8 +143,5 @@ export class BrowserManager {
         
         return page;
     }
-
-
-
 
 }

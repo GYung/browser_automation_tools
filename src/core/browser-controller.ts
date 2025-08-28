@@ -18,20 +18,21 @@ export class BrowserController {
         return BrowserController.instance;
     }
 
-    async execute(page:Page, taksConfig:ScreenshotTask) : Promise<void> {
-      const url = taksConfig.url;
-      const operations = taksConfig.operations || [];
+    async execute(page:Page, taskConfig:ScreenshotTask) : Promise<void> {
+      const url = taskConfig.url;
+      const operations = taskConfig.operations || [];
       for(const operation of operations){
         if(operation.type === 'config'){
           const metaConfigMap = getMetaConfig(url)
           const metaConfig = metaConfigMap.get(operation.key || "")
           if(!metaConfig){
+            console.warn(`⚠️ 未找到页面元配置: ${operation.key}`);
             continue;
           }
           console.log('✅ 基于页面元配置执行');
           await this.batchExecute(page, metaConfig.operations || [])
         } else {
-          await this.signleExecute(page,operation)
+          await this.singleExecute(page, operation)
         }
       }
     }
@@ -41,11 +42,11 @@ export class BrowserController {
         return;
       }
       for(const operation of operations){
-        await this.signleExecute(page,operation)
+        await this.singleExecute(page, operation)
       }
     }
 
-    private async signleExecute(page:Page, operation:OperationConfig) : Promise<void> {
+    private async singleExecute(page:Page, operation:OperationConfig) : Promise<void> {
       if(operation.type === 'input'){
         await this.handleInput(page, operation);
      }

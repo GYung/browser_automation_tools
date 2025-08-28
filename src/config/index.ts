@@ -8,13 +8,23 @@ export const appConfig = {
   headless: false,
   
   // 登录配置
-  login: {
+  logins: [{
     domain: 'www.baidu.com',
     loginUrl: 'https://passport.baidu.com/v2/?login',
     name: '百度',
-  },
+  }],
   
   // 超时配置
   pageLoadTimeout: 30000, // 30秒
   loginWaitTimeout: 120000, // 2分钟
+  
+  // DeepSeek API 配置
+  deepSeek: {
+    apiKey:  'sk-5cdd211f0e224058a2565309a697d645', // 从环境变量获取API密钥
+    baseUrl: 'https://api.deepseek.com/v1',
+    model: 'deepseek-chat',
+    maxTokens: 4096,
+    temperature: 0.7,
+    timeout: 60000, // 60秒超时
+  },
 };

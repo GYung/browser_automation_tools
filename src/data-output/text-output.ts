@@ -34,18 +34,18 @@ export class TextOutputHandler implements OutputHandler {
       // 同时在控制台输出摘要
       console.log(`📊 数据摘要:`);
       console.log(`   - 页面URL: ${input.url || "未知"}`);
-      console.log(`   - 页面标题: ${input.data.get("title") || "未知"}`);
-      console.log(`   - 页面描述: ${input.data.get("description") || "无"}`);
       
-      // 显示各类型元素数量
-      const textElements = input.data.get("textElements") || {};
-      const elementTypes = Object.keys(textElements);
-      if (elementTypes.length > 0) {
-        console.log(`   - 元素类型: ${elementTypes.join(", ")}`);
-        elementTypes.forEach((type) => {
-          const elements = textElements[type];
-          console.log(`     ${type}: ${elements.length}个`);
-        });
+      // 遍历所有数据键值对
+      for (const [key, value] of input.data.entries()) {
+        if (typeof value === 'object' && value !== null) {
+          if (Array.isArray(value)) {
+            console.log(`   - ${key}: ${value.length}个元素`);
+          } else {
+            console.log(`   - ${key}: ${JSON.stringify(value).substring(0, 100)}...`);
+          }
+        } else {
+          console.log(`   - ${key}: ${value}`);
+        }
       }
 
       console.log(`🎉 文本输出处理完成`);
@@ -64,52 +64,52 @@ export class TextOutputHandler implements OutputHandler {
     let content = "";
 
     // 基本信息
-    content += `页面文本抓取报告\n`;
+    content += `页面数据抓取报告\n`;
     content += `================\n\n`;
     content += `URL: ${url || "未知"}\n`;
     content += `时间: ${new Date().toLocaleString("zh-CN")}\n\n`;
 
-    // 页面标题和描述
-    const title = dataMap.get("title") || "未知";
-    const description = dataMap.get("description") || "无描述";
-    content += `页面标题: ${title}\n`;
-    content += `页面描述: ${description}\n\n`;
-
-    // 文本元素数据
-    const textElements = dataMap.get("textElements") || {};
-    const elementTypes = Object.keys(textElements);
-    
-    if (elementTypes.length > 0) {
-      content += `文本元素数据:\n`;
-      content += `==============\n\n`;
+    // 遍历所有数据键值对
+    for (const [key, value] of dataMap.entries()) {
+      content += `【${key}】\n`;
+      content += `----------------------------------------\n`;
       
-      elementTypes.forEach((elementType) => {
-        const elements = textElements[elementType];
-        content += `【${elementType}】 (共${elements.length}个):\n`;
-        content += `----------------------------------------\n`;
-        
-        elements.slice(0, 10).forEach((element: any, index: number) => {
-          content += `${index + 1}. [${element.tag}] ${element.text}\n`;
-          
-          // 显示其他属性
-          Object.keys(element).forEach((key) => {
-            if (key !== 'tag' && key !== 'text' && element[key]) {
-              content += `   ${key}: ${element[key]}\n`;
-            }
+      if (typeof value === 'object' && value !== null) {
+        if (Array.isArray(value)) {
+          // 数组类型数据
+          content += `共 ${value.length} 个元素:\n\n`;
+          value.slice(0, 20).forEach((item: any, index: number) => {
+                         if (typeof item === 'object' && item !== null) {
+               content += `${index + 1}. `;
+               if (item.text) content += `${item.text}\n`;
+               else content += `${JSON.stringify(item)}\n`;
+               
+               // 显示其他属性
+               Object.keys(item).forEach((propKey) => {
+                 if (propKey !== 'text' && item[propKey]) {
+                   content += `   ${propKey}: ${item[propKey]}\n`;
+                 }
+               });
+               content += `\n`;
+             } else {
+               content += `${index + 1}. ${item}\n`;
+             }
           });
-          content += `\n`;
-        });
-        
-        if (elements.length > 10) {
-          content += `... 还有 ${elements.length - 10} 个${elementType}元素\n`;
+          
+          if (value.length > 20) {
+            content += `... 还有 ${value.length - 20} 个元素\n`;
+          }
+        } else {
+          // 对象类型数据
+          content += `${JSON.stringify(value, null, 2)}\n`;
         }
-        content += `\n`;
-      });
-    } else {
-      content += `未找到任何文本元素数据\n`;
+      } else {
+        // 基本类型数据
+        content += `${value}\n`;
+      }
+      
+      content += `\n`;
     }
-
-
 
     return content;
   }
