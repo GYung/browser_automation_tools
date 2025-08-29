@@ -1,3 +1,4 @@
+import dotenv from 'dotenv';
 import { BrowserManager } from "./core/browser-manager.js";
 import { TaskManager } from "./core/task-manager.js";
 
@@ -108,7 +109,8 @@ async function listTasks() {
   });
  
 }
-
+// 加载环境变量
+dotenv.config();
 const app = new App();
 
 async function main() {

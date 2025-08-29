@@ -20,7 +20,7 @@ export const appConfig = {
   
   // DeepSeek API 配置
   deepSeek: {
-    apiKey:  '', // 从环境变量获取API密钥
+    apiKey: process.env.DEEPSEEK_API_KEY || '', // 从环境变量获取API密钥
     baseUrl: 'https://api.deepseek.com/v1',
     model: 'deepseek-chat',
     maxTokens: 4096,
