@@ -1,4 +1,4 @@
-import type { OutputHandler, AcquisitionResult } from "../types";
+import type { OutputHandler, OutputHandlerInput } from "../types";
 import * as fs from "fs/promises";
 import * as path from "path";
 
@@ -9,11 +9,11 @@ import * as path from "path";
 export class TextOutputHandler implements OutputHandler {
   /**
    * 实现接口方法 - 执行输出处理
-   * @param input - 采集结果
+   * @param input - 输出处理器输入数据
    * @param context - 执行上下文
    * @returns 输出结果
    */
-  async execute(input: AcquisitionResult, context: any): Promise<void> {
+  async execute(input: OutputHandlerInput, context: any): Promise<void> {
     console.log(`TextOutputHandler开始生成文本输出`);
 
     try {

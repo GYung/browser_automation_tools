@@ -1,4 +1,5 @@
 import { appConfig } from '../../config/index.js';
+import type { LLMService, LLMMessage, LLMChatOptions, LLMChatResponse } from './llm-service.js';
 
 /**
  * DeepSeek API 请求接口
@@ -13,7 +14,7 @@ export interface DeepSeekMessage {
  */
 export interface DeepSeekRequest {
   model: string;
-  messages: DeepSeekMessage[];
+  messages: LLMMessage[];
   max_tokens?: number;
   temperature?: number;
   stream?: boolean;
@@ -57,7 +58,7 @@ export interface DeepSeekError {
  * DeepSeek 服务类
  * 提供与 DeepSeek OpenAPI 的交互功能
  */
-export class DeepSeekService {
+export class DeepSeekService implements LLMService {
   private apiKey: string;
   private baseUrl: string;
   private model: string;
@@ -92,16 +93,13 @@ export class DeepSeekService {
    * @param options 可选参数
    * @returns API 响应
    */
-  async chat(messages: DeepSeekMessage[], options: {
-    maxTokens?: number;
-    temperature?: number;
-  } = {}): Promise<DeepSeekResponse> {
+  async chat(messages: LLMMessage[], options: LLMChatOptions = {}): Promise<LLMChatResponse> {
     if (!this.validateConfig()) {
       throw new Error('DeepSeek API 配置无效');
     }
 
     const requestBody: DeepSeekRequest = {
-      model: this.model,
+      model: options.model || this.model,
       messages,
       max_tokens: options.maxTokens || this.maxTokens,
       temperature: options.temperature || this.temperature,
@@ -129,10 +127,21 @@ export class DeepSeekService {
       const data: DeepSeekResponse = await response.json();
       console.log(`✅ DeepSeek API 请求成功`);
       
-      return data;
+      return {
+        success: true,
+        content: data.choices[0]?.message?.content || '',
+        usage: {
+          promptTokens: data.usage.prompt_tokens,
+          completionTokens: data.usage.completion_tokens,
+          totalTokens: data.usage.total_tokens,
+        },
+      };
     } catch (error) {
       console.error(`❌ DeepSeek API 请求失败:`, error);
-      throw error;
+      return {
+        success: false,
+        error: error instanceof Error ? error.message : String(error),
+      };
     }
   }
 
@@ -142,16 +151,13 @@ export class DeepSeekService {
    * @param options 可选参数
    * @returns 生成的文本
    */
-  async generateText(prompt: string, options: {
-    maxTokens?: number;
-    temperature?: number;
-  } = {}): Promise<string> {
-    const messages: DeepSeekMessage[] = [
+  async generateText(prompt: string, options: LLMChatOptions = {}): Promise<string> {
+    const messages: LLMMessage[] = [
       { role: 'user', content: prompt }
     ];
 
     const response = await this.chat(messages, options);
-    return response.choices[0]?.message?.content || '';
+    return response.content || '';
   }
 
   /**
@@ -161,22 +167,15 @@ export class DeepSeekService {
    * @param options 可选参数
    * @returns 生成的文本
    */
-  async chatWithSystem(systemPrompt: string, userMessage: string, options: {
-    maxTokens?: number;
-    temperature?: number;
-  } = {}): Promise<string> {
-    const messages: DeepSeekMessage[] = [
+  async chatWithSystem(systemPrompt: string, userMessage: string, options: LLMChatOptions = {}): Promise<string> {
+    const messages: LLMMessage[] = [
       { role: 'system', content: systemPrompt },
       { role: 'user', content: userMessage }
     ];
-
+    
     const response = await this.chat(messages, options);
-    return response.choices[0]?.message?.content || '';
+    return response.content || '';
   }
-
-
-
-
 
   /**
    * 测试 API 连接

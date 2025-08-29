@@ -39,7 +39,7 @@ export interface ElementLocatorResult {
  * 智能元素定位工具类
  * 解决没有固定唯一标识的元素定位问题
  */
-export class ElementLocator {
+export class LocatorUtils {
   /**
    * 智能定位元素 - 自动识别表达式类型
    */

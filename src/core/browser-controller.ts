@@ -1,10 +1,9 @@
 import { Page } from "puppeteer-core";
 import { InputUtils } from "../utils/input-utils.js";
 import { ClickUtils } from "../utils/click-utils.js";
-import { ScreenshotTask } from "../config/screenshot-config.js";
 import { KeyboardUtils } from "../utils/keyboard-utils.js";
 import { MouseUtils } from "../utils/mouse-utils.js";
-import { OperationType, OperationConfig } from "../types/index.js";
+import { OperationType, OperationConfig, Task } from "../types/index.js";
 import { getMetaConfig } from "../config/page-meta-config.js";
 
 export class BrowserController {
@@ -20,7 +19,7 @@ export class BrowserController {
         return BrowserController.instance;
     }
 
-    async execute(page:Page, taskConfig:ScreenshotTask) : Promise<void> {
+    async execute(page:Page, taskConfig:Task) : Promise<void> {
       const url = taskConfig.url;
       const operations = taskConfig.operations || [];
       for(const operation of operations){

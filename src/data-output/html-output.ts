@@ -1,4 +1,4 @@
-import type { OutputHandler, AcquisitionResult } from "../types";
+import type { OutputHandler, OutputHandlerInput } from "../types";
 import * as fs from "fs/promises";
 import * as path from "path";
 import { BrowserManager } from "../core/browser-manager.js";
@@ -10,11 +10,11 @@ import { BrowserManager } from "../core/browser-manager.js";
 export class HtmlOutputHandler implements OutputHandler {
   /**
    * 实现接口方法 - 执行输出处理
-   * @param input - 采集结果
+   * @param input - 输出处理器输入数据
    * @param context - 执行上下文
    * @returns 输出结果
    */
-  async execute(input: AcquisitionResult, context: any) {
+  async execute(input: OutputHandlerInput, context: any) {
     console.log(`HtmlOutputHandler开始生成HTML页面`);
 
     try {

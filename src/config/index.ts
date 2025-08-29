@@ -1,5 +1,9 @@
+// 确保环境变量在配置加载前被初始化
+import dotenv from 'dotenv';
+dotenv.config();
+
 /**
- * 浏览器自动化工具全局配置
+ * 全局配置
  */
 export const appConfig = {
   // 浏览器配置

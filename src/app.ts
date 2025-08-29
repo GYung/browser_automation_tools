@@ -41,7 +41,7 @@ class App {
   /**
    * 执行单个任务
    */
-  async executeTask(taskName: string, params = {}, context = {}) {
+  async executeTask(taskName: string, params = {}) {
     const task = this.taskManager.getTask(taskName);
 
     if (!task) {
@@ -51,7 +51,7 @@ class App {
     console.log(`🚀 开始执行任务: ${taskName}`);
     try {
       // 执行任务
-      const result = await task.execute(params, context);
+      const result = await task.execute(params);
 
       console.log(`✅ 任务执行完成: ${taskName}`);
       return result;
@@ -72,10 +72,8 @@ class App {
     console.log(`🎯 运行任务: ${taskName}`);
     console.log(`📋 参数:`, params);
 
-    const context = {};
-
     try {
-      const result = await this.executeTask(taskName, params, context);
+      const result = await this.executeTask(taskName, params);
       console.log(`✅ 任务执行成功: ${taskName}`);
 
       return result;
@@ -109,8 +107,6 @@ async function listTasks() {
   });
  
 }
-// 加载环境变量
-dotenv.config();
 const app = new App();
 
 async function main() {

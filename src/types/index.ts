@@ -22,10 +22,10 @@ export enum OperationType {
 
 /**
  * 基础任务接口
- * 所有任务类型的父类
  */
 export interface Task {
   url: string;              // 目标URL
+  taskName?:string  // 任务名称
   waitTime?: number;        // 等待时间
   operations?: Array<OperationConfig>; // 操作配置
   metadata?: Record<string, any>; // 元数据
@@ -72,17 +72,61 @@ export interface AcquisitionHandler {
 }
 
 /**
+ * 分析结果结构
+ */
+export interface AnalysisResult {
+  success: boolean;
+  url?: string;
+  dataType: DataType; // 数据类型标识
+  analysisData: Map<string, any>; // 分析数据 map，key 是分析标识，value 是分析结果
+  metadata?: Record<string, any>; // 元数据（如分析配置、统计信息等）
+  insights?: Array<{
+    type: string; // 洞察类型
+    title: string; // 洞察标题
+    description: string; // 洞察描述
+    confidence: number; // 置信度 (0-1)
+    data?: any; // 相关数据
+  }>; // 分析洞察
+}
+
+/**
+ * 分析处理接口
+ * 所有数据分析处理器必须继承此接口
+ */
+export interface AnalysisHandler {
+  /**
+   * 执行数据分析
+   * @param {AcquisitionResult} input - 采集结果数据
+   * @param {Object} context - 执行上下文
+   * @returns {Promise<AnalysisResult>} 分析结果
+   */
+  execute(input: AcquisitionResult, context: any): Promise<AnalysisResult>;
+}
+
+/**
+ * 输出处理器输入结构
+ */
+export interface OutputHandlerInput {
+  data: Map<string, any>; // 数据 map，key 是数据标识，value 是数据
+  metadata?: Record<string, any>; // 元数据（如路径、配置等）
+  url?: string; // 源URL
+  dataType: DataType; // 数据类型标识
+  // 扩展字段，用于自定义转换
+  [key: string]: any;
+}
+
+/**
  * 输出处理接口
  * 所有输出处理器必须继承此接口
  */
 export interface OutputHandler {
   /**
    * 执行输出处理
-   * @param {AcquisitionResult} input - 采集结果
+   * @param {OutputHandlerInput} input - 输出处理器输入数据
    * @param {Object} context - 执行上下文
    * @returns {Promise<void>} 输出结果
    */
-  execute(input: AcquisitionResult, context: any): Promise<void>;
+  execute(input: OutputHandlerInput, context: any): Promise<void>;
 }
 
 // ------------参数定义--------

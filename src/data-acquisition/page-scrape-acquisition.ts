@@ -2,7 +2,7 @@ import type { AcquisitionHandler, AcquisitionResult } from "../types/index.js";
 import { DataType } from "../types/index.js";
 import { BrowserManager } from "../core/browser-manager.js";
 import { ScrapeUtils } from "../utils/scrape-utils.js";
-import { getScrapeConfig, getScrapeTask, type ScrapeTask } from "../config/scrape-config.js";
+import { getScrapeConfig, type ScrapeTask } from "../config/scrape-config.js";
 import { BrowserController } from "../core/browser-controller.js";
 
 /**
@@ -47,14 +47,7 @@ export class PageScrapeAcquisitionHandler implements AcquisitionHandler {
           // 执行页面操作（如果有配置）
           if (task.operations && task.operations.length > 0) {
             console.log(`🔧 执行页面操作...`);
-            // 转换任务格式以适配 BrowserController
-            const browserTask = {
-              url: task.url,
-              filename: `${task.taskName}_screenshot.png`, // 临时文件名
-              waitTime: task.waitTime || 2000,
-              operations: task.operations as any, // 类型转换，因为 ScrapeTask 和 ScreenshotTask 的 operations 类型不同
-            };
-            await BrowserController.getInstance().execute(page, browserTask);
+            await BrowserController.getInstance().execute(page, task);
           }
 
           // 执行数据抓取

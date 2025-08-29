@@ -1,4 +1,4 @@
-import { OperationType } from "../types";
+import {Task } from "../types";
 
 /**
  * 抓取元素配置
@@ -15,22 +15,9 @@ export interface ScrapeElementConfig {
 /**
  * 抓取任务配置
  */
-export interface ScrapeTask {
-  url: string; // 目标URL
-  taskName: string; // 任务名称
+export interface ScrapeTask extends Task {
   filename?: string; // 输出文件名
-  waitTime?: number; // 页面加载后等待时间
   elements: ScrapeElementConfig[]; // 要抓取的元素配置
-  operations?: Array<{
-    type: OperationType;
-    key?: string;
-    selector?: string;
-    value?: string;
-    waitTime?: number;
-    parentSelector?: string;
-    childIndex?: number;
-    childSelector?: string;
-  }>; // 页面操作配置
 }
 
 /**
@@ -162,15 +149,4 @@ export const scrapeConfigs: ScrapeConfig = {
  */
 export function getScrapeConfig(configName: string): ScrapeTask[] {
   return scrapeConfigs[configName] || [];
-}
-
-/**
- * 获取单个抓取任务
- * @param configName 配置名称
- * @param taskIndex 任务索引
- * @returns 抓取任务
- */
-export function getScrapeTask(configName: string, taskIndex: number = 0): ScrapeTask | null {
-  const tasks = getScrapeConfig(configName);
-  return tasks[taskIndex] || null;
 }

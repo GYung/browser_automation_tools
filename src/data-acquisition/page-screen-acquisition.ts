@@ -9,9 +9,22 @@ import { BrowserController } from "../core/browser-controller.js";
 import { appConfig } from "../config/index.js";
 
 /**
+ * 任务进度回调监听器接口
+ */
+export interface TaskProgressListener {
+  onTaskStart?: (taskIndex: number, task: ScreenshotTask) => void;
+}
+
+/**
  * 页面截图数据采集器
  */
 export class PageScreenAcquisitionHandler implements AcquisitionHandler {
+  private progressListener: TaskProgressListener | undefined;
+
+  constructor(progressListener?: TaskProgressListener) {
+    this.progressListener = progressListener;
+  }
+
   async execute(input: any, context: any) {
     console.log(`PageScreenAcquisitionHandler 开始执行数据采集`);
 
@@ -39,6 +52,9 @@ export class PageScreenAcquisitionHandler implements AcquisitionHandler {
         
         console.log(`\n🔄 执行任务 ${i + 1}/${tasks.length}: ${task.url}`);
         
+        // 调用任务开始回调
+        this.progressListener?.onTaskStart?.(i, task);
+        
          // 直接导航到目标页面（登录状态已在初始化时处理）
         const page = await browserManager.newPageWithUrl(task.url);
        
@@ -59,15 +75,20 @@ export class PageScreenAcquisitionHandler implements AcquisitionHandler {
             throw new Error(screenshotResult.error || "截图失败");
           }
 
-          results.push({
+          const result = {
             url: task.url,
             selector: "没什么用",
             filename: task.filename || `screenshot-${i + 1}`,
             screenshotPath,
             success: true,
-          });
+          };
+
+          results.push(result);
 
           console.log(`✅ 任务 ${i + 1} 完成`);
+        } catch (error) {
+          console.error(`❌ 任务 ${i + 1} 失败:`, error);
+          throw error;
         } finally {
           await page.close();
         }
