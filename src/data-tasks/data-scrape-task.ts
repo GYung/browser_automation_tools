@@ -3,7 +3,7 @@ import { PageScrapeAcquisitionHandler } from "../data-acquisition/page-scrape-ac
 import { BaseTask } from "./base-task.js";
 import { TextOutputHandler } from "../data-output/text-output.js";
 import { LlmAnalysisHandler } from "../data-analysis/llm-analysis.js";
-import { DeepSeekService } from "../services/LLM/deep-seek.js";
+import { DeepSeekService } from "../services/llm/deep-seek.js";
 
 /**
  * 数据抓取任务 - 负责从网页抓取数据

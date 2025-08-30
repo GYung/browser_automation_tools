@@ -1,5 +1,5 @@
 import { LlmAnalysisHandler } from '../dist/data-analysis/llm-analysis.js';
-import { DeepSeekService } from '../dist/services/LLM/deep-seek.js';
+import { DeepSeekService } from '../dist/services/llm/deep-seek.js';
 
 // 测试 LLM 分析处理器
 async function testLlmAnalysis() {

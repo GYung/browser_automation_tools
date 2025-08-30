@@ -1,4 +1,4 @@
-import { DeepSeekService } from '../dist/services/LLM/deep-seek.js';
+import { DeepSeekService } from '../dist/services/llm/deep-seek.js';
 
 // 测试 LLM 服务接口
 async function testLLMService() {

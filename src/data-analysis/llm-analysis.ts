@@ -1,5 +1,5 @@
 import type { AnalysisHandler, AnalysisResult, AcquisitionResult } from "../types/index.js";
-import type { LLMService, LLMChatOptions } from "../services/LLM/llm-service.js";
+import type { LLMService, LLMChatOptions } from "../services/llm/llm-service.js";
 
 
 /**
