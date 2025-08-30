@@ -1,5 +1,5 @@
 import type { AcquisitionHandler, AnalysisHandler, OutputHandler } from "../types/index.js";
-import { PageScrapeAcquisitionHandler } from "../data-acquisition/page-scrape-acquisition.js";
+import { PageScrapeAcquisitionHandler, type TaskProgressListener } from "../data-acquisition/page-scrape-acquisition.js";
 import { BaseTask } from "./base-task.js";
 import { TextOutputHandler } from "../data-output/text-output.js";
 import { LlmAnalysisHandler } from "../data-analysis/llm-analysis.js";

@@ -7,10 +7,23 @@ import { BrowserController } from "../core/browser-controller.js";
 import { appConfig } from "../config/index.js";
 
 /**
+ * 任务进度回调监听器接口
+ */
+export interface TaskProgressListener {
+  onTaskEnd?: (taskResult: any) => void;
+}
+
+/**
  * 页面抓取采集器
  * 负责从网页抓取文本内容、链接、标题等信息
  */
 export class PageScrapeAcquisitionHandler implements AcquisitionHandler {
+  private progressListener: TaskProgressListener | undefined;
+
+  constructor(progressListener?: TaskProgressListener) {
+    this.progressListener = progressListener;
+  }
+
   /**
    * 实现接口方法 - 执行数据采集
    * @param input - 输入参数，包含配置名称或直接配置
@@ -25,7 +38,7 @@ export class PageScrapeAcquisitionHandler implements AcquisitionHandler {
 
     try {
       // 获取任务列表
-      const configName = input || 'quick';
+      const configName = input;
       const tasks = getScrapeConfig(configName);
       
       if (tasks.length === 0) {
@@ -50,12 +63,17 @@ export class PageScrapeAcquisitionHandler implements AcquisitionHandler {
             throw new Error(scrapeResult.error || "数据抓取失败");
           }
 
-          results.push({
+          const taskResult = {
             taskName: task.taskName,
             url: task.url,
             data: scrapeResult.data,
             success: true,
-          });
+          }
+
+           // 调用任务结束回调
+           this.progressListener?.onTaskEnd?.(taskResult);
+          
+          results.push(taskResult);
 
           console.log(`✅ 任务 ${i + 1} 完成`);
         } finally {
@@ -117,7 +135,7 @@ export class PageScrapeAcquisitionHandler implements AcquisitionHandler {
       }
 
       // 执行页面数据抓取
-      const pageScrapeResult = await ScrapeUtils.scrapePageData(page, {textElements:task.elements, waitTime});
+      const pageScrapeResult = await ScrapeUtils.scrapePageData(page, {textElements:task.elements || [], waitTime});
       
       // 等待 API 数据收集完成
       const apiScrapeResult = await apiScrapePromise;
@@ -126,13 +144,9 @@ export class PageScrapeAcquisitionHandler implements AcquisitionHandler {
       const scrapeResult: { success: boolean; data?: any; error?: string } = {
         success: pageScrapeResult.success && apiScrapeResult.success,
         data: {
-          taskName: task.taskName,
-          url: task.url,
           pageTitle: pageScrapeResult.title,
-          pageDescription: pageScrapeResult.description,
           pageElements: pageScrapeResult.textElements,
           apiData: apiScrapeResult.apiData || [],
-          timestamp: new Date().toISOString(),
         }
       };
 

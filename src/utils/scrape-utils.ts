@@ -12,7 +12,6 @@ export interface TextElementConfig {
 export interface apiConfig {
   url: string; // 接口URL（支持部分匹配）
   name: string; // 接口名称，用于输出展示
-  method?: string; // HTTP方法（GET, POST等）
   fieldName?: string; // 要读取的返回字段名（如 'data', 'result', 'items' 等）
 }
 
@@ -34,7 +33,7 @@ export interface ScrapeResult {
   title?: string;
   description?: string;
   textElements?: Record<string, any[]>;
-  apiData?: any[],
+  apiData?: Record<string, any>,
   error?: string;
 }
 
@@ -43,6 +42,30 @@ export interface ScrapeResult {
  * 封装页面访问到数据抓取的逻辑
  */
 export class ScrapeUtils {
+  /**
+   * 根据点号分隔的字段路径获取嵌套对象的值
+   * @param obj 要查询的对象
+   * @param fieldPath 字段路径，支持点号分隔，如 'data.items.list'
+   * @returns 找到的值，如果路径不存在则返回 undefined
+   */
+  private static getNestedValue(obj: any, fieldPath: string): any {
+    if (!obj || !fieldPath) {
+      return undefined;
+    }
+
+    const keys = fieldPath.split('.');
+    let current = obj;
+
+    for (const key of keys) {
+      if (current === null || current === undefined || typeof current !== 'object') {
+        return undefined;
+      }
+      current = current[key];
+    }
+
+    return current;
+  }
+
   /**
    * 执行页面数据抓取
    * @param page Puppeteer页面实例
@@ -70,7 +93,6 @@ export class ScrapeUtils {
       const pageData = await page.evaluate((textElements) => {
         const result: any = {
           title: "",
-          description: "",
           textElements: {},
           debug: [], // 添加调试信息
         };
@@ -80,14 +102,6 @@ export class ScrapeUtils {
           result.title = document.title || "";
         } catch (e) {
           result.title = "";
-        }
-
-        // 获取页面描述
-        try {
-          const metaDescription = document.querySelector('meta[name="description"]');
-          result.description = metaDescription?.getAttribute('content') || "";
-        } catch (e) {
-          result.description = "";
         }
 
         // 抓取指定的文本元素
@@ -155,7 +169,6 @@ export class ScrapeUtils {
       return {
         success: true,
         title: pageData.title,
-        description: pageData.description,
         textElements: pageData.textElements,
       };
     } catch (error) {
@@ -163,7 +176,6 @@ export class ScrapeUtils {
       return {
         success: false,
         title: "",
-        description: "",
         textElements: {},
         error: error instanceof Error ? error.message : String(error),
       };
@@ -178,7 +190,7 @@ export class ScrapeUtils {
    */
   static async scrapeApiData(page: any, config: ScrapeConfig): Promise<ScrapeResult> {
     const {apis ,waitTime = 3000} = config;
-    const apiData: any[] = [];
+    const apiData: Record<string, any> = {};
     // 如果没有配置 API，直接返回成功状态
     if (!apis || apis.length === 0) {
       return {
@@ -195,9 +207,9 @@ export class ScrapeUtils {
         const url = response.url();
         
         // 检查是否匹配要监听的接口
-        const matchedEndpoint = apis?.find(endpoint => url.startsWith(endpoint.url));
+        const matchedApi = apis?.find(endpoint => url.startsWith(endpoint.url));
         
-        if (matchedEndpoint) {
+        if (matchedApi) {
           try {
             console.log(`📡 捕获接口请求: ${url}`);
             
@@ -205,20 +217,21 @@ export class ScrapeUtils {
             const responseData = await response.json().catch(() => null);
             
             if (responseData) {
-              // 读取指定字段的数据
+              // 使用新的嵌套字段读取方法
               let extractedData = responseData;
-              if (matchedEndpoint.fieldName && responseData[matchedEndpoint.fieldName]) {
-                extractedData = responseData[matchedEndpoint.fieldName];
-                console.log(`📊 提取字段 '${matchedEndpoint.fieldName}' 的数据`);
+              if (matchedApi.fieldName) {
+                const nestedValue = this.getNestedValue(responseData, matchedApi.fieldName);
+                if (nestedValue !== undefined) {
+                  extractedData = nestedValue;
+                  console.log(`📊 提取嵌套字段 '${matchedApi.fieldName}' 的数据`);
+                } else {
+                  console.warn(`⚠️ 未找到字段 '${matchedApi.fieldName}' 的数据`);
+                }
               }
               
-              apiData.push({
-                url: url,
-                status: response.status(),
-                data: extractedData, // 指定字段数据
-              });
+              apiData[matchedApi.name] = extractedData;
               
-              console.log(`✅ 接口数据已捕获: ${matchedEndpoint.name || 'unknown'}`);
+              console.log(`✅ 接口数据已捕获: ${matchedApi.name || 'unknown'}`);
             }
           } catch (error) {
             console.warn(`⚠️ 解析接口响应失败: ${url}`, error);
@@ -236,7 +249,7 @@ export class ScrapeUtils {
         // 移除监听器避免内存泄漏
         page.off('response', responseHandler);
         
-        console.log(`✅ 接口数据监听完成，共捕获 ${apiData.length} 个接口`);
+        console.log(`✅ 接口数据监听完成，共捕获 ${Object.keys(apiData).length} 个接口`);
         
         resolve({
           success: true,

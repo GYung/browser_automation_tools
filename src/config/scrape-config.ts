@@ -26,7 +26,7 @@ export interface ScrapeElementConfig {
  */
 export interface ScrapeTask extends Task {
   filename?: string; // 输出文件名
-  elements: ScrapeElementConfig[]; // 要抓取的元素配置
+  elements?: ScrapeElementConfig[]; // 要抓取的元素配置
   apis?: ScrapeApiConfig[]; // 要监听的接口配置
 }
 

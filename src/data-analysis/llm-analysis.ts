@@ -20,7 +20,7 @@ export class LlmAnalysisHandler implements AnalysisHandler {
     this.llmService = llmService;
     this.analysisConfig = {
       systemPrompt: config?.systemPrompt || '你是一个专业的数据分析师，请对提供的数据进行分析并给出有价值的洞察。',
-      chatPrompt: config?.systemPrompt || '请对提供的数据进行专业分析',
+      chatPrompt: config?.chatPrompt || '请对提供的数据进行专业分析',
     };
   }
 
@@ -115,9 +115,6 @@ export class LlmAnalysisHandler implements AnalysisHandler {
   private generateAnalysisPrompt(data: any, dataType: string): string {
     let prompt = `请对以下${dataType === 'image' ? '图片' : '文本'}数据进行分析：\n\n`;
     
-    prompt += `数据来源: ${data.url || '未知'}\n`;
-    prompt += `数据类型: ${dataType}\n\n`;
-    
     if (dataType === 'text') {
       prompt += '数据内容:\n';
       Object.entries(data.data).forEach(([key, value]) => {
@@ -130,8 +127,7 @@ export class LlmAnalysisHandler implements AnalysisHandler {
       });
     }
 
-    prompt = `'\n${this.analysisConfig.chatPrompt}\n'`
-    prompt += '请以结构化的方式回答，使用清晰的标题和要点。';
+    prompt += `\n${this.analysisConfig.chatPrompt}\n`
 
     return prompt;
   }
@@ -141,7 +137,6 @@ export class LlmAnalysisHandler implements AnalysisHandler {
    */
   private parseAnalysisResult(llmResponse: string, dataType: string): any {
     return {
-      summary: llmResponse,
       analysisType: 'llm_generated',
       dataType,
     };

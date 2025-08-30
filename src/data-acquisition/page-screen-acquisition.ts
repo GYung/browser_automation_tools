@@ -77,7 +77,6 @@ export class PageScreenAcquisitionHandler implements AcquisitionHandler {
 
           const result = {
             url: task.url,
-            selector: "没什么用",
             filename: task.filename || `screenshot-${i + 1}`,
             screenshotPath,
             success: true,
