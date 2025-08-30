@@ -23,10 +23,11 @@ async function testDeepSeekService() {
     // 测试2: 简单文本生成
     console.log('\n📝 测试2: 简单文本生成');
     try {
-      const response1 = await deepSeekService.generateText('请用一句话介绍人工智能', {
-        maxTokens: 100,
-        temperature: 0.7
-      });
+      const response1 = await deepSeekService.chatWithSystem(
+        '你是一个专业的AI助手，请用简洁的语言回答问题。',
+        '请用一句话介绍人工智能',
+        { maxTokens: 100, temperature: 0.7 }
+      );
       console.log('生成的文本:', response1);
     } catch (error) {
       console.error('文本生成失败:', error.message);
@@ -59,7 +60,7 @@ async function testDeepSeekService() {
         maxTokens: 100,
         temperature: 0.8
       });
-      console.log('多轮对话回复:', response3.choices[0].message.content);
+      console.log('多轮对话回复:', response3.content);
     } catch (error) {
       console.error('多轮对话失败:', error.message);
     }
