@@ -1,4 +1,5 @@
 import type { ElementHandle, Page } from 'puppeteer-core';
+import { LocatorUtils } from './locator-utils.js';
 
 /**
  * 鼠标移动配置选项
@@ -14,23 +15,30 @@ export interface MouseMoveOptions {
  * 提供鼠标移动功能
  */
 export class MouseUtils {
-  private page: Page;
-
-  constructor(page: Page) {
-    this.page = page;
-  }
 
   /**
-   * 移动到元素中心
-   * @param element 目标元素
+   * 静态方法：移动到元素中心（通过选择器定位）
+   * @param page Puppeteer页面实例
+   * @param selector 元素选择器
    * @param options 移动选项
    */
-  async moveToElementCenter( element: ElementHandle<Element>,options: MouseMoveOptions = {}): Promise<void> {
+   static async moveToElementCenter(page: Page, selector: string, options: MouseMoveOptions = {}): Promise<void> {
     try {
-      const {steps = 10} = options;
-
+      console.log(`🖱️ 移动到元素中心: ${selector}`);
+      
+      // 使用 LocatorUtils 定位元素
+      const locateResult = await LocatorUtils.locateElement(page, {
+        expression: selector,
+        timeout: 10000,
+        scrollIntoView: true
+      });
+      
+      if (!locateResult.success || !locateResult.element) {
+        throw new Error(`元素定位失败: ${locateResult.error || '未找到元素'}`);
+      }
+      
       // 获取元素的位置和尺寸
-      const boundingBox = await element.boundingBox();
+      const boundingBox = await locateResult.element.boundingBox();
       if (!boundingBox) {
         throw new Error('无法获取元素边界框');
       }
@@ -42,8 +50,8 @@ export class MouseUtils {
       console.log(`🖱️ 移动到元素中心: (${centerX.toFixed(2)}, ${centerY.toFixed(2)})`);
 
       // 执行移动
-      await this.page.mouse.move(centerX, centerY, { steps });
-      
+      const { steps = 10 } = options;
+      await page.mouse.move(centerX, centerY, { steps });
 
       console.log('✅ 鼠标移动完成');
     } catch (error) {
@@ -53,23 +61,20 @@ export class MouseUtils {
   }
 
   /**
-   * 移动到指定坐标
+   * 静态方法：移动到指定坐标
+   * @param page Puppeteer页面实例
    * @param x X坐标
    * @param y Y坐标
    * @param options 移动选项
    */
-  async moveToPosition(
-    x: number,
-    y: number,
-    options: MouseMoveOptions = {}
-  ): Promise<void> {
+  static async moveToPosition(page: Page, x: number, y: number, options: MouseMoveOptions = {}): Promise<void> {
     try {
       const { duration = 500, steps = 10, delay = 100 } = options;
 
       console.log(`🖱️ 移动到坐标: (${x}, ${y})`);
 
       // 执行移动
-      await this.page.mouse.move(x, y, { steps });
+      await page.mouse.move(x, y, { steps });
       
       // 等待指定时间
       if (duration > 0) {

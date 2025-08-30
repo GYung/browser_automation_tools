@@ -18,9 +18,9 @@ export class DataScrapeTask extends BaseTask {
     return new PageScrapeAcquisitionHandler();
   }
 
-  protected getAnalysisHandler(): AnalysisHandler {
-    return new LlmAnalysisHandler(new DeepSeekService());
-  }
+  // protected getAnalysisHandler(): AnalysisHandler {
+  //   return new LlmAnalysisHandler(new DeepSeekService());
+  // }
 
   protected getOutputHandler(): OutputHandler {
     return new TextOutputHandler();

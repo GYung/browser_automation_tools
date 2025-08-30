@@ -1,4 +1,5 @@
 import type { Page } from "puppeteer-core";
+import { LocatorUtils } from "./locator-utils.js";
 
 /**
  * 点击配置接口
@@ -45,11 +46,19 @@ export class ClickUtils {
       
       console.log(`🎯 点击元素: ${selector}`);
       
-      // 等待元素出现
-      await page.waitForSelector(selector, { timeout });
+      // 使用 LocatorUtils 定位元素
+      const locateResult = await LocatorUtils.locateElement(page, {
+        expression: selector,
+        timeout: timeout,
+        scrollIntoView: true
+      });
       
-      // 点击元素
-      await page.click(selector);
+      if (!locateResult.success || !locateResult.element) {
+        throw new Error(`元素定位失败: ${locateResult.error || '未找到元素'}`);
+      }
+      
+      // 使用 Puppeteer 的 click 方法点击元素
+      await locateResult.element.click();
       console.log(`✅ 点击成功`);
 
       // 等待指定时间
@@ -101,9 +110,12 @@ export class ClickUtils {
    */
   static async waitAndClick(page: Page, selector: string, timeout = 10000): Promise<boolean> {
     try {
-      await page.waitForSelector(selector, { timeout });
-      await page.click(selector);
-      return true;
+      // 使用 LocatorUtils 定位并点击元素
+      const result = await this.clickElement(page, {
+        selector: selector,
+        timeout: timeout
+      });
+      return result.success;
     } catch (error) {
       console.warn(`⚠️ 等待并点击失败: ${error}`);
       return false;

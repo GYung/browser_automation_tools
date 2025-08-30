@@ -4,6 +4,7 @@ import { BrowserManager } from "../core/browser-manager.js";
 import { ScrapeUtils } from "../utils/scrape-utils.js";
 import { getScrapeConfig, type ScrapeTask } from "../config/scrape-config.js";
 import { BrowserController } from "../core/browser-controller.js";
+import { appConfig } from "../config/index.js";
 
 /**
  * 页面抓取采集器
@@ -40,19 +41,11 @@ export class PageScrapeAcquisitionHandler implements AcquisitionHandler {
         
         console.log(`\n🔄 执行任务 ${i + 1}/${tasks.length}: ${task.taskName} (${task.url})`);
         
-        // 创建新页面并导航到目标URL
-        const page = await browserManager.newPageWithUrl(task.url);
-        
+        // 创建新页面
+        const page = await browserManager.newPage();
         try {
-          // 执行页面操作（如果有配置）
-          if (task.operations && task.operations.length > 0) {
-            console.log(`🔧 执行页面操作...`);
-            await BrowserController.getInstance().execute(page, task);
-          }
-
           // 执行数据抓取
-          const scrapeResult = await this.scrapeTaskData(page, task);
-
+          const scrapeResult = await this.executeScrapeTask(page, task);
           if (!scrapeResult.success) {
             throw new Error(scrapeResult.error || "数据抓取失败");
           }
@@ -98,47 +91,58 @@ export class PageScrapeAcquisitionHandler implements AcquisitionHandler {
   }
 
   /**
-   * 执行单个任务的数据抓取
+   * 执行任务并同时进行 API 数据抓取
    * @param page 页面实例
    * @param task 抓取任务配置
    * @returns 抓取结果
    */
-  private async scrapeTaskData(page: any, task: ScrapeTask): Promise<{ success: boolean; data?: any; error?: string }> {
+  private async executeScrapeTask(page: any, task: ScrapeTask): Promise<{ success: boolean; data?: any; error?: string }> {
     try {
-      // 转换元素配置格式
-      const textElements = task.elements.map(element => ({
-        selector: element.selector,
-        name: element.name,
-        attributes: element.attributes || ['textContent'],
-      }));
-
-      // 使用抓取工具执行页面数据抓取
-      const scrapeResult = await ScrapeUtils.scrapePageData(page, {
-        waitTime: task.waitTime || 2000,
-        textElements,
+      // 设置默认等待时间
+      const waitTime = task.waitTime || 3000;
+      
+      // 设置 API 监听器
+      const apiScrapePromise = ScrapeUtils.scrapeApiData(page, {apis:task.apis || [], waitTime});
+      
+      // 导航到目标页面
+      await page.goto(task.url, {
+        waitUntil: 'networkidle2',
+        timeout: appConfig.pageLoadTimeout,
       });
-
-      if (!scrapeResult.success) {
-        return {
-          success: false,
-          error: scrapeResult.error || "页面数据抓取失败"
-        };
+      
+      // 执行页面操作（如果有配置）
+      if (task.operations && task.operations.length > 0) {
+        console.log(`🔧 执行页面操作...`);
+        await BrowserController.getInstance().execute(page, task);
       }
 
-      // 构建结构化的数据结果
-      const structuredData = {
-        taskName: task.taskName,
-        url: task.url,
-        pageTitle: scrapeResult.title,
-        pageDescription: scrapeResult.description,
-        scrapedElements: scrapeResult.textElements,
-        timestamp: new Date().toISOString(),
+      // 执行页面数据抓取
+      const pageScrapeResult = await ScrapeUtils.scrapePageData(page, {textElements:task.elements, waitTime});
+      
+      // 等待 API 数据收集完成
+      const apiScrapeResult = await apiScrapePromise;
+      
+      // 构建结果
+      const scrapeResult: { success: boolean; data?: any; error?: string } = {
+        success: pageScrapeResult.success && apiScrapeResult.success,
+        data: {
+          taskName: task.taskName,
+          url: task.url,
+          pageTitle: pageScrapeResult.title,
+          pageDescription: pageScrapeResult.description,
+          pageElements: pageScrapeResult.textElements,
+          apiData: apiScrapeResult.apiData || [],
+          timestamp: new Date().toISOString(),
+        }
       };
 
-      return {
-        success: true,
-        data: structuredData
-      };
+      // 只有在有错误时才添加 error 属性
+      const errorMessage = pageScrapeResult.error || apiScrapeResult.error;
+      if (errorMessage) {
+        scrapeResult.error = errorMessage;
+      }
+
+      return scrapeResult;
     } catch (error) {
       return {
         success: false,
@@ -146,4 +150,5 @@ export class PageScrapeAcquisitionHandler implements AcquisitionHandler {
       };
     }
   }
+
 }

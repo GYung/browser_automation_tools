@@ -14,9 +14,7 @@ export enum OperationType {
   INPUT = "input",           // 输入操作
   KEYBOARD = "keyboard",     // 键盘操作
   CLICK = "click",           // 点击操作
-  CLICK_CHILD = "click-child", // 复杂点击操作（点击子元素）
   MOUSE_MOVE = "mouse-move", // 鼠标移动操作
-  MOUSE_MOVE_CLICK = "mouse-move-click", // 鼠标移动并点击操作
   CONFIG = "config"          // 配置操作
 }
 
@@ -25,7 +23,7 @@ export enum OperationType {
  */
 export interface Task {
   url: string;              // 目标URL
-  taskName?:string  // 任务名称
+  taskName?:string  // 任务名称 
   waitTime?: number;        // 等待时间
   operations?: Array<OperationConfig>; // 操作配置
   metadata?: Record<string, any>; // 元数据
@@ -36,7 +34,7 @@ export interface Task {
  */
 export interface OperationConfig {
   type: OperationType;
-  key?: string; // 按键名称，如 'Enter', 'Tab', 'Escape' 等
+  key?: string; // 按键名称，如 'Enter', 'Tab', 'Escape', Input'' 等
   selector?: string; // 输入框选择器
   value?: string; // 要输入的值
   waitTime?: number; // 输入后等待时间

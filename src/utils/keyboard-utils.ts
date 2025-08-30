@@ -32,15 +32,9 @@ export class KeyboardUtils {
    */
   static async pressKey(page: Page, config: KeyConfig): Promise<PressResult> {
     try {
-      const { selector, key, waitTime = 0, timeout = 10000 } = config;
+      const {key, waitTime = 0, timeout = 10000 } = config;
       
       console.log(`⌨️ 按键: ${key}`);
-      
-      // 如果指定了选择器，先点击元素获取焦点
-      if (selector) {
-        await page.waitForSelector(selector, { timeout });
-        await page.click(selector);
-      }
       
       // 按键
       await page.keyboard.press(key as any);
@@ -69,18 +63,13 @@ export class KeyboardUtils {
    * @param config 文本输入配置
    * @returns 操作结果
    */
-  static async typeText(page: Page, config: KeyConfig): Promise<PressResult> {
+  static async inputText(page: Page, config: KeyConfig): Promise<PressResult> {
     try {
-      const { selector, value, waitTime = 0, timeout = 10000 } = config;
+      const {value, waitTime = 0, timeout = 10000 } = config;
       
       console.log(`⌨️ 键盘输入文本: "${value}"`);
       
-      // 如果指定了选择器，先点击元素获取焦点
-      if (selector) {
-        await page.waitForSelector(selector, { timeout });
-        await page.click(selector);
-      }
-      
+    
       // 输入文本
       await page.keyboard.type(value || '');
       console.log(`✅ 文本输入完成: "${value}"`);

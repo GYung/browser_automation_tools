@@ -1,4 +1,5 @@
 import type { Page } from "puppeteer-core";
+import { LocatorUtils } from "./locator-utils.js";
 
 /**
  * 输入配置接口
@@ -46,11 +47,19 @@ export class InputUtils {
       
       console.log(`⌨️ 输入文本: ${value}`);
       
-      // 等待输入框出现
-      await page.waitForSelector(selector, { timeout });
+      // 使用 LocatorUtils 定位元素
+      const locateResult = await LocatorUtils.locateElement(page, {
+        expression: selector,
+        timeout: timeout,
+        scrollIntoView: true
+      });
+      
+      if (!locateResult.success || !locateResult.element) {
+        throw new Error(`元素定位失败: ${locateResult.error || '未找到元素'}`);
+      }
       
       // 点击输入框获取焦点
-      await page.click(selector);
+      await locateResult.element.click();
       
       // 清空输入框（如果需要）
       if (clearFirst) {
@@ -61,7 +70,7 @@ export class InputUtils {
       }
       
       // 输入文本
-      await page.type(selector, value);
+      await page.keyboard.type(value);
       console.log(`✅ 输入完成: ${value}`);
 
       // 等待指定时间
@@ -79,60 +88,5 @@ export class InputUtils {
         error: errorMessage 
       };
     }
-  }
-
-  /**
-   * 按键操作
-   * @param page Puppeteer页面实例
-   * @param config 按键配置
-   * @returns 操作结果
-   */
-  static async pressKey(page: Page, config: KeyConfig): Promise<InputResult> {
-    try {
-      const { selector, key, waitTime = 0, timeout = 10000 } = config;
-      
-      console.log(`⌨️ 按键: ${key}`);
-      
-      // 如果指定了选择器，先点击元素获取焦点
-      if (selector) {
-        await page.waitForSelector(selector, { timeout });
-        await page.click(selector);
-      }
-      
-      // 按键
-      await page.keyboard.press(key as any);
-      console.log(`✅ 按键完成: ${key}`);
-
-      // 等待指定时间
-      if (waitTime > 0) {
-        console.log(`⏳ 等待 ${waitTime}ms...`);
-        await new Promise(resolve => setTimeout(resolve, waitTime));
-      }
-
-      return { success: true };
-    } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
-      console.warn(`⚠️ 按键失败: ${errorMessage}`);
-      return { 
-        success: false, 
-        error: errorMessage 
-      };
-    }
-  }
-
-  /**
-   * 组合操作：输入文本后按键
-   * @param page Puppeteer页面实例
-   * @param inputConfig 输入配置
-   * @param keyConfig 按键配置
-   * @returns 操作结果
-   */
-  static async inputAndPress(page: Page, inputConfig: InputConfig, keyConfig: KeyConfig): Promise<InputResult> {
-    const inputResult = await this.inputText(page, inputConfig);
-    if (!inputResult.success) {
-      return inputResult;
-    }
-    
-    return await this.pressKey(page, keyConfig);
   }
 }

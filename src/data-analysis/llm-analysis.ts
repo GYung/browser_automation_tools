@@ -10,14 +10,17 @@ export class LlmAnalysisHandler implements AnalysisHandler {
   private llmService: LLMService;
   private analysisConfig: {
     systemPrompt?: string;
+    chatPrompt?: string;
   };
 
   constructor(llmService: LLMService, config?: {
     systemPrompt?: string;
+    chatPrompt?: string;
   }) {
     this.llmService = llmService;
     this.analysisConfig = {
       systemPrompt: config?.systemPrompt || '你是一个专业的数据分析师，请对提供的数据进行分析并给出有价值的洞察。',
+      chatPrompt: config?.systemPrompt || '请对提供的数据进行专业分析',
     };
   }
 
@@ -127,12 +130,7 @@ export class LlmAnalysisHandler implements AnalysisHandler {
       });
     }
 
-    prompt += '\n请提供以下分析：\n';
-    prompt += '1. 数据概览和主要特征\n';
-    prompt += '2. 关键发现和洞察\n';
-    prompt += '3. 数据质量评估\n';
-    prompt += '4. 建议和下一步行动\n';
-    prompt += '5. 潜在问题和风险\n\n';
+    prompt = `'\n${this.analysisConfig.chatPrompt}\n'`
     prompt += '请以结构化的方式回答，使用清晰的标题和要点。';
 
     return prompt;

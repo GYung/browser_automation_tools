@@ -12,18 +12,85 @@ export class ConsoleOutputHandler implements OutputHandler {
    * @returns 输出结果
    */
   async execute(input: OutputHandlerInput, context: any): Promise<void> {
-    console.log(`ConsoleOutputHandler 开始输出`);
-      // 根据数据类型显示不同的信息
-      if (input.dataType === "image") {
-        console.log(`📸 数据类型: 图片`);
-        console.log(`📁 保存路径: ${input.metadata?.screenshotPath || "未知"}`);
-      } else if (input.dataType === "text") {
-        console.log(`📝 数据类型: 文本`);
-        if (input.data?.get("keyword")) {
-          console.log(`🔍 搜索关键字: ${input.data.get("keyword")}`);
-          console.log(`📊 搜索结果数量: ${input.metadata?.resultCount || 0}`);
+    console.log(`\n📊 --------------控制台输出开始------------------\n`);
+    console.log(`🔗 URL: ${input.url || '未知'}`);
+    console.log(`📋 数据类型: ${this.getDataTypeDisplay(input.dataType)}`);
+    
+    // 显示基本信息
+    if (input.metadata?.taskCount) {
+      console.log(`📊 任务数量: ${input.metadata.taskCount}`);
+    }
+    
+    // 显示数据内容
+    if (input.data) {
+      console.log(`\n📄 数据内容:`);
+      this.displayData(input.data);
+    }
+    
+    console.log(`🎉 ---------------控制台输出完成-----------------\n`);
+  }
+
+  /**
+   * 获取数据类型的显示文本
+   * @param dataType 数据类型
+   * @returns 显示文本
+   */
+  private getDataTypeDisplay(dataType: string): string {
+    const typeMap: Record<string, string> = {
+      'image': '📸 图片',
+      'text': '📝 文本',
+    };
+    return typeMap[dataType] || dataType;
+  }
+
+  /**
+   * 显示数据内容
+   * @param data 数据
+   */
+  private displayData(data: any): void {
+    if (data instanceof Map) {
+      data.forEach((value, key) => {
+        if (key.startsWith('task_')) {
+          console.log(`   📋 ${key}: ${this.formatTaskData(value)}`);
+        } else {
+          console.log(`   🔧 ${key}: ${this.formatValue(value)}`);
         }
-      }
-      console.log(`🎉 Console输出完成`);
+      });
+    } else if (typeof data === 'object') {
+      Object.entries(data).forEach(([key, value]) => {
+        console.log(`   🔧 ${key}: ${this.formatValue(value)}`);
+      });
+    } else {
+      console.log(`   ${data}`);
+    }
+  }
+
+  /**
+   * 格式化任务数据
+   * @param taskData 任务数据
+   * @returns 格式化字符串
+   */
+  private formatTaskData(taskData: any): string {
+    if (typeof taskData === 'object' && taskData !== null) {
+      const parts = [];
+      if (taskData.taskName) parts.push(`任务: ${taskData.taskName}`);
+      if (taskData.pageTitle) parts.push(`标题: ${taskData.pageTitle}`);
+      if (taskData.pageElements) parts.push(`元素: ${Object.keys(taskData.pageElements).length} 类`);
+      if (taskData.apiData) parts.push(`API: ${taskData.apiData.length} 个`);
+      return parts.join(', ') || '任务数据';
+    }
+    return String(taskData);
+  }
+
+  /**
+   * 格式化值显示
+   * @param value 值
+   * @returns 格式化后的字符串
+   */
+  private formatValue(value: any): string {
+    if (value === null || value === undefined) return String(value);
+    if (Array.isArray(value)) return `[${value.length} 项]`;
+    if (typeof value === 'object') return `{${Object.keys(value).length} 个属性}`;
+    return String(value);
   }
 }

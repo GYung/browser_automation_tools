@@ -1,6 +1,9 @@
 import type { AcquisitionHandler, AcquisitionResult } from "../types/index.js";
 import { DataType } from "../types/index.js";
 import { BrowserManager } from "../core/browser-manager.js";
+import { getActionConfig, type ActionTask } from "../config/action-config.js";
+import { BrowserController } from "../core/browser-controller.js";
+import { appConfig } from "../config/index.js";
 
 /**
  * 页面操作采集器
@@ -8,130 +11,83 @@ import { BrowserManager } from "../core/browser-manager.js";
  */
 export class PageActionAcquisitionHandler implements AcquisitionHandler {
   /**
-   * 实现接口方法 - 执行搜索
-   * @param input - 输入参数，包含 url、搜索关键字和选择器配置
+   * 实现接口方法 - 执行页面操作
+   * @param input - 输入参数，包含配置名称或直接配置
    * @param context - 执行上下文
    * @returns 采集结果
    */
   async execute(input: any, context: any): Promise<AcquisitionResult> {
-    console.log(`PageActionAcquisitionHandler 开始执行操作`);
+    console.log(`PageActionAcquisitionHandler 开始执行页面操作`);
 
-    // 默认配置
-    const config = {
-      url: input.url || "https://www.baidu.com",
-      keyword: input.keyword || "测试搜索",
-      selectors: input.selectors || {
-        searchInput: "#kw", // 百度搜索框
-        searchButton: "#su", // 搜索按钮
-      },
-      waitTime: input.waitTime || 2000,
-      ...input,
-    };
-
-    console.log(`🌐 准备搜索页面: ${config.url}`);
-    console.log(`🔍 搜索关键字: ${config.keyword}`);
+    const browserManager = BrowserManager.getInstance();
+    const results: any[] = [];
 
     try {
-      console.log(`🚀 使用共享浏览器实例`);
-
-      // 从浏览器管理器获取浏览器实例并创建新页面
-      const browserManager = BrowserManager.getInstance();
-      const page = await browserManager.newPageWithUrl(config.url);
-
-      // 等待页面稳定（缩短等待时间）
-      if (config.waitTime > 0) {
-        console.log(`⏳ 等待 ${config.waitTime}ms...`);
-        await new Promise((resolve) => setTimeout(resolve, 500));
+      // 获取任务列表
+      const configName = input || 'baidu_search';
+      const tasks = getActionConfig(configName);
+      
+      if (tasks.length === 0) {
+        throw new Error(`未找到配置名称: ${configName}`);
+      }
+      
+      console.log(`📊 配置: ${configName}, 任务数量: ${tasks.length}`);
+      
+      // 执行所有任务
+      for (let i = 0; i < tasks.length; i++) {
+        const task = tasks[i];
+        if (!task) continue;
+        
+        console.log(`\n🔄 执行任务 ${i + 1}/${tasks.length}: ${task.taskName} (${task.url})`);
+        
+        // 创建新页面并导航
+        const page = await browserManager.newPageWithUrl(task.url);
+        
+        try {
+          // 执行页面操作（如果有配置）
+      if (task.operations && task.operations.length > 0) {
+        console.log(`🔧 开始执行页面操作...`);
+        await BrowserController.getInstance().execute(page, task);
+        console.log(`✅ 页面操作执行完成`);
       }
 
-      // 获取页面基本信息
-      const pageInfo = {
-        title: await page.title(),
-        url: page.url(),
-      };
+          results.push({
+            taskName: task.taskName,
+            url: task.url,
+            description: task.description,
+            success: true,
+          });
 
-      console.log(`📋 页面信息:`, pageInfo);
-
-      // 执行搜索
-      console.log(`🔍 开始执行搜索...`);
-
-      // 等待搜索框出现并聚焦
-      await page.waitForSelector(config.selectors.searchInput, {
-        timeout: 10000,
-      });
-      await page.focus(config.selectors.searchInput);
-
-      // 清空搜索框并输入关键字
-      await page.keyboard.down("Control");
-      await page.keyboard.press("KeyA");
-      await page.keyboard.up("Control");
-      await page.type(config.selectors.searchInput, config.keyword);
-
-      console.log(`📝 已输入关键字: ${config.keyword}`);
-
-      // 按回车键提交搜索
-      await page.keyboard.press("Enter");
-      console.log(`🔍 已按回车键提交搜索`);
-
-      // 等待搜索结果加载
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      console.log(`⏳ 等待搜索结果加载...`);
-
-      // 获取搜索结果信息
-      const searchResults = await page.evaluate(() => {
-        const results: any = {};
-
-        // 获取搜索结果数量
-        try {
-          const resultElements = document.querySelectorAll(
-            ".result, .c-container, .g",
-          );
-          results.count = resultElements.length;
-        } catch (e) {
-          results.count = 0;
+          console.log(`✅ 任务 ${i + 1} 完成`);
+        } finally {
+          await page.close();
         }
+      }
 
-        // 获取前几个搜索结果的标题
-        try {
-          const titles = document.querySelectorAll("h3, .t, .c-title");
-          results.titles = Array.from(titles)
-            .slice(0, 5)
-            .map((el: any) => el.textContent?.trim() || "");
-        } catch (e) {
-          results.titles = [];
-        }
-
-        return results;
+      // 构建结果
+      const dataMap = new Map<string, any>();
+      
+      // 添加任务数据
+      results.forEach((result, index) => {
+        dataMap.set(`task_${index + 1}_${result.taskName}`, result.data);
       });
 
-      console.log(`📊 搜索结果: ${searchResults.count} 个结果`);
-
-      // 返回结果
-      const result: AcquisitionResult = {
+      console.log(`🎉 所有页面操作完成`);
+      return {
         success: true,
-        url: config.url,
+        url: tasks[0]?.url || '',
         dataType: DataType.TEXT,
-        data: new Map([
-          ["keyword", config.keyword],
-          ["searchResults", searchResults],
-        ]),
-        metadata: {
-          searchUrl: config.url,
-          resultCount: searchResults.count,
+        data: dataMap,
+        metadata: { 
+          taskCount: tasks.length, 
+          results,
+          configName,
         },
       };
-
-      console.log(`🎉 搜索完成`);
-             
-       // 测试采集失败的情况（可以注释掉这行来恢复正常）
-      // return { success: false, error: "测试采集失败" };
-             
-      return result;
     } catch (error) {
-      console.error(`❌ 搜索失败:`, error);
+      console.error(`❌ 页面操作失败:`, error);
       throw error;
-    } finally {
-      console.log(`📄 搜索处理完成，保持浏览器实例运行`);
     }
   }
+
 }

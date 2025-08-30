@@ -46,29 +46,6 @@ export const screenshotConfigs: ScreenshotConfig = {
     },
   ],
 
-  // 复杂点击示例配置
-  'click-example': [
-    {
-      url: 'https://example.com/table',
-      filename: 'table_click_example.png',
-      waitTime: 2000,
-      operations: [
-        {
-          type: OperationType.CLICK_CHILD,
-          parentSelector: 'tr', // 选择tr元素
-          childIndex: 1, // 点击第二个td元素（索引从0开始）
-          waitTime: 1000,
-        },
-        {
-          type: OperationType.CLICK_CHILD,
-          parentSelector: 'tr.button-row', // 选择特定的tr
-          childSelector: 'td.action-button', // 点击包含action-button类的td
-          waitTime: 1000,
-        }
-      ]
-    },
-  ],
-
   // 多页面截图
   multi: [
     {

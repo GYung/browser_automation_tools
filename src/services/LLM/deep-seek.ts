@@ -2,14 +2,6 @@ import { appConfig } from '../../config/index.js';
 import type { LLMService, LLMMessage, LLMChatOptions, LLMChatResponse } from './llm-service.js';
 
 /**
- * DeepSeek API 请求接口
- */
-export interface DeepSeekMessage {
-  role: 'system' | 'user' | 'assistant';
-  content: string;
-}
-
-/**
  * DeepSeek API 请求参数
  */
 export interface DeepSeekRequest {
@@ -146,21 +138,6 @@ export class DeepSeekService implements LLMService {
   }
 
   /**
-   * 简单的文本生成
-   * @param prompt 提示文本
-   * @param options 可选参数
-   * @returns 生成的文本
-   */
-  async generateText(prompt: string, options: LLMChatOptions = {}): Promise<string> {
-    const messages: LLMMessage[] = [
-      { role: 'user', content: prompt }
-    ];
-
-    const response = await this.chat(messages, options);
-    return response.content || '';
-  }
-
-  /**
    * 带系统提示的聊天
    * @param systemPrompt 系统提示
    * @param userMessage 用户消息
@@ -183,8 +160,12 @@ export class DeepSeekService implements LLMService {
    */
   async testConnection(): Promise<boolean> {
     try {
-      const response = await this.generateText('Hello', { maxTokens: 10 });
-      return response.length > 0;
+      const messages: LLMMessage[] = [
+        { role: 'user', content: 'Hello' }
+      ];
+      const response = await this.chat(messages,  { maxTokens: 10 });
+      const content =  response.content || '';
+      return content.length > 0;
     } catch (error) {
       console.error(`❌ DeepSeek API 连接测试失败:`, error);
       return false;

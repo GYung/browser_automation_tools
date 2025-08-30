@@ -43,14 +43,6 @@ export interface LLMService {
   chat(messages: LLMMessage[], options?: LLMChatOptions): Promise<LLMChatResponse>;
 
   /**
-   * 简单的文本生成
-   * @param prompt 提示文本
-   * @param options 生成选项
-   * @returns 生成的文本
-   */
-  generateText(prompt: string, options?: LLMChatOptions): Promise<string>;
-
-  /**
    * 带系统提示的聊天
    * @param systemPrompt 系统提示
    * @param userMessage 用户消息

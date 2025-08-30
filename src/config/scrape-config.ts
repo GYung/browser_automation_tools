@@ -1,4 +1,13 @@
-import {Task } from "../types";
+import { Task,  OperationType } from "../types/index.js";
+
+/**
+ * 接口抓取配置
+ */
+export interface ScrapeApiConfig {
+  url: string; // 接口URL（支持部分匹配）
+  name: string; // 接口名称，用于输出展示
+  fieldName?: string; // 要读取的返回字段名（如 'data', 'result', 'items' 等）
+}
 
 /**
  * 抓取元素配置
@@ -18,6 +27,7 @@ export interface ScrapeElementConfig {
 export interface ScrapeTask extends Task {
   filename?: string; // 输出文件名
   elements: ScrapeElementConfig[]; // 要抓取的元素配置
+  apis?: ScrapeApiConfig[]; // 要监听的接口配置
 }
 
 /**
@@ -31,6 +41,21 @@ export interface ScrapeConfig {
  * 预定义的抓取配置
  */
 export const scrapeConfigs: ScrapeConfig = {
+  debug:[{
+    url: 'https://news.baidu.com',
+    taskName: '百度新闻抓取',
+    filename: 'baidu-news-data.txt',
+    waitTime: 3000,
+    elements: [
+    ],
+    apis: [
+      {
+        url: 'https://news.baidu.com/widget?id=LocalNews',
+        name: '新闻接口',
+        fieldName: 'data'
+      }
+    ]
+  }],
   // 快速测试抓取
   baidu: [
     {

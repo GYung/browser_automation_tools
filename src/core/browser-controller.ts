@@ -57,13 +57,7 @@ export class BrowserController {
      if(operation.type === OperationType.CLICK){
          await this.handleClick(page, operation);
      }
-     if(operation.type === OperationType.CLICK_CHILD){
-         await this.handleClickChild(page, operation);
-     }
      if(operation.type === OperationType.MOUSE_MOVE){
-         await this.handleMouseMoveCenter(page, operation);
-     }
-     if(operation.type === OperationType.MOUSE_MOVE_CLICK){
          await this.handleMouseMoveCenter(page, operation);
      }
     }
@@ -96,8 +90,7 @@ export class BrowserController {
 
     // 特殊处理：当 key 为 'input' 时，使用文本输入方法
     if (optration.key === 'Input') {
-      
-      result = await KeyboardUtils.typeText(page, {
+      result = await KeyboardUtils.inputText(page, {
         key:optration.key,
         value: optration.value || '',
         waitTime: optration.waitTime || 0,
@@ -159,24 +152,14 @@ export class BrowserController {
    * 处理鼠标移动并点击操作
    */
   private async handleMouseMoveCenter(page: Page, operation: OperationConfig): Promise<void> {
-    const mouseUtils = new MouseUtils(page);
-
     try {
       if (!operation.selector) {
         console.warn('⚠️ 鼠标移动点击操作需要指定 selector');
         return;
       }
 
-      const element = await page.$(operation.selector);
-      if (!element) {
-        console.warn(`⚠️ 未找到元素: ${operation.selector}`);
-        return;
-      }
-
       // 先移动到元素中心
-      await mouseUtils.moveToElementCenter(element, {
-  
-      });
+      await MouseUtils.moveToElementCenter(page, operation.selector, {});
       
     
     } catch (error) {
