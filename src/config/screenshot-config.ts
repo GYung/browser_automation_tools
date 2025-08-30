@@ -3,6 +3,7 @@
  */
 
 import { Task,  OperationType } from "../types/index.js";
+import { appConfig } from "./index.js";
 
 /**
  * 截图任务配置
@@ -73,9 +74,10 @@ export function getScreenshotConfig(configName: string): ScreenshotTask[] {
 /**
  * 生成截图文件路径
  * @param filename 文件名
- * @param baseDir 基础目录
+ * @param baseDir 基础目录（可选，默认使用 appConfig.outputDir）
  * @returns 文件路径
  */
-export function generateScreenshotPath(filename: string, baseDir: string = './output'): string {
-  return `${baseDir}/${filename}`;
-}
+export function generateScreenshotPath(filename: string, baseDir?: string): string {
+  const outputDir = baseDir || appConfig.outputDir;
+  return `${outputDir}/${filename}`;
+} 

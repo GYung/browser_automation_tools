@@ -1,6 +1,7 @@
-import type { OutputHandler, OutputHandlerInput } from "../types";
+import type { OutputHandler, OutputHandlerInput } from "../types/index.js";
 import * as fs from "fs/promises";
 import * as path from "path";
+import { appConfig } from "../config/index.js";
 
 /**
  * 文本输出处理器
@@ -17,8 +18,9 @@ export class TextOutputHandler implements OutputHandler {
     console.log(`TextOutputHandler开始生成文本输出`);
 
     try {
-      // 获取输出路径
-      const outputPath = input.metadata?.outputPath || "./output/scraped-data.txt";
+      // 获取输出路径，优先使用 metadata 中的路径，否则使用默认配置
+      const outputPath = input.metadata?.outputPath || 
+        `${appConfig.outputDir}/text-output.txt`;
       const outputDir = path.dirname(outputPath);
 
       // 确保输出目录存在

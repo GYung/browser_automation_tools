@@ -56,8 +56,8 @@ export class LlmAnalysisHandler implements AnalysisHandler {
       const analysisResult = this.parseAnalysisResult(llmResponse, input.dataType);
       
       // 存储分析数据
-      analysisData.set('llm_analysis', analysisResult);
-      analysisData.set('raw_response', llmResponse);
+      analysisData.set('analysis_source', analysisResult);
+      analysisData.set('analysis_report', llmResponse);
 
       console.log('✅ LLM 分析完成');
 

@@ -99,7 +99,9 @@ export class PageScrapeAcquisitionHandler implements AcquisitionHandler {
           taskCount: tasks.length, 
           results,
           configName,
-          outputPath: tasks[0]?.filename ? `./output/${tasks[0].filename}` : './output/scraped-data.txt'
+          outputPath: tasks[0]?.filename ? 
+            `${appConfig.outputDir}/${tasks[0].filename}` : 
+            `${appConfig.outputDir}/scraped-data.txt`
         },
       };
     } catch (error) {

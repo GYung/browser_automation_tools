@@ -4,7 +4,6 @@ import * as fs from "fs/promises";
 import { ScreenshotUtils } from "../utils/screenshot-utils.js";
 import { BrowserManager } from "../core/browser-manager.js";
 import { getScreenshotConfig, generateScreenshotPath, type ScreenshotTask } from "../config/screenshot-config.js";
-import type { Page } from "puppeteer-core";
 import { BrowserController } from "../core/browser-controller.js";
 import { appConfig } from "../config/index.js";
 
@@ -29,7 +28,7 @@ export class PageScreenAcquisitionHandler implements AcquisitionHandler {
     console.log(`PageScreenAcquisitionHandler 开始执行数据采集`);
 
     // 确保输出目录存在
-    await fs.mkdir('./output', { recursive: true });
+    await fs.mkdir(appConfig.outputDir, { recursive: true });
 
     const browserManager = BrowserManager.getInstance();
     const results: any[] = [];

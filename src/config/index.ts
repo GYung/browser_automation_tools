@@ -18,9 +18,13 @@ export const appConfig = {
     name: '百度',
   }],
   
-  // 超时配置
+  // 页面加载超时配置
   pageLoadTimeout: 30000, // 30秒
+  // 执行登录超时配置
   loginWaitTimeout: 120000, // 2分钟
+  
+  // 输出目录
+  outputDir: './output',
   
   // DeepSeek API 配置
   deepSeek: {
