@@ -34,7 +34,7 @@ class App {
    * 关闭浏览器
    */
   async closeBrowser() {
-    await new Promise(resolve => setTimeout(resolve, 60000));
+    await new Promise(resolve => setTimeout(resolve, 36000));
     await this.browserManager.close();
   }
 

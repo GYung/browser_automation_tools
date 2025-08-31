@@ -27,7 +27,7 @@ export const screenshotConfigs: ScreenshotConfig = {
     
   ],
   // 百度相关截图
-  baidu: [
+  baidu_search: [
     {
       url: 'https://www.baidu.com',
       filename: 'baidu_search_click.png',
@@ -41,26 +41,12 @@ export const screenshotConfigs: ScreenshotConfig = {
     },
   ],
 
-  // 快速测试截图
-  quick: [
+  // 测试截图
+  screen: [
     {
       url: 'https://www.baidu.com',
-      filename: 'quick_test.png',
+      filename: 'screen_demo.png',
       waitTime: 500,
-    },
-  ],
-
-  // 多页面截图
-  multi: [
-    {
-      url: 'https://www.baidu.com',
-      filename: 'page1.png',
-      waitTime: 2000,
-    },
-    {
-      url: 'https://www.google.com',
-      filename: 'page2.png',
-      waitTime: 2000,
     },
   ],
 };

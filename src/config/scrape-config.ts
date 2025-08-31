@@ -67,6 +67,13 @@ export const scrapeConfigs: ScrapeConfig = {
           name: '发布时间',
           attributes: ['textContent', 'datetime'],
         }
+      ],
+      apis:[
+        {
+          url: 'https://news.baidu.com/widget?id=LocalNews',
+          name:'local_news',
+          field:'data.LocalNews'
+        }
       ]
     },
   ],

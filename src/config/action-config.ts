@@ -42,7 +42,7 @@ export const actionConfigs: ActionConfig = {
         },
         {
           type: OperationType.KEYBOARD,
-          selector: 'Enter',
+          key: 'Enter',
         }
       ]
     },
