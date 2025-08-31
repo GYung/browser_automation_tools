@@ -9,7 +9,6 @@ import { PageScrapeAcquisitionHandler, TaskProgressListener } from "../data-acqu
 import { TextOutputHandler } from "../data-output/text-output.js";
 import { LlmAnalysisHandler } from "../data-analysis/llm-analysis.js";
 import { DeepSeekService } from "../services/llm/deep-seek.js";
-import { IdeaLabService } from "../services/llm/idea-lab.js";
 
 /**
  * demo任务
@@ -50,7 +49,6 @@ export class DemoTask extends BaseTask {
   //   chatPrompt += '请以易于阅读的形式返回分析结果。';
 
   //   return new LlmAnalysisHandler(new DeepSeekService(), { systemPrompt: systemPrompt, chatPrompt: chatPrompt });
-  //   // return new LlmAnalysisHandler(new IdeaLabService(), { systemPrompt: systemPrompt, chatPrompt: chatPrompt });
   // }
 
   /**
@@ -66,7 +64,7 @@ export class DemoTask extends BaseTask {
    * @returns 
    */
   protected getTaskDescription(): string {
-    return "demo任务";
+    return "这是一个demo任务";
   }
 
   /**

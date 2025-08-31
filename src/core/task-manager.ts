@@ -2,6 +2,7 @@ import type { BaseTask } from "../data-tasks/base-task.js";
 import { DataScreenTask } from "../data-tasks/data-screen-task.js";
 import { DataScrapeTask } from "../data-tasks/data-scrape-task.js";
 import { DataActionTask } from "../data-tasks/data-action-task.js";
+import { DemoTask } from "../data-tasks/demo-task.js";
 
 /**
  * 任务管理器
@@ -39,6 +40,7 @@ export class TaskManager {
     this.registerTask("screen", new DataScreenTask());
     this.registerTask("scrape", new DataScrapeTask());
     this.registerTask("action", new DataActionTask());
+    this.registerTask("demo", new DemoTask());
 
     this.initialized = true;
     console.log("✅ 任务管理器初始化完成");
