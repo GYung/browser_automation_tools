@@ -41,67 +41,14 @@ export interface ScrapeConfig {
  * 预定义的抓取配置
  */
 export const scrapeConfigs: ScrapeConfig = {
-  debug:[{
-    url: 'https://news.baidu.com',
-    taskName: '百度新闻抓取',
-    filename: 'baidu-news-data.txt',
-    waitTime: 3000,
-    elements: [
-    ],
-    apis: [
-      {
-        url: 'https://news.baidu.com/widget?id=LocalNews',
-        name: '新闻接口',
-        field: 'data'
-      }
-    ]
-  }],
-  // 快速测试抓取
-  baidu: [
-    {
-      url: 'https://www.baidu.com/#/test?start=2025-08-25%2019:00:23&end=1756395510809',
-      taskName: '快速测试抓取',
-      filename: 'quick-test-data.txt',
-      waitTime: 3000,
-      elements: [
-        {
-          selector: 'title',
-          name: '页面标题',
-          attributes: ['textContent'],
-        },
-        {
-          selector: 'h1, h2, h3, h4, h5, h6',
-          name: '标题元素',
-          attributes: ['textContent'],
-        },
-        {
-          selector: 'p',
-          name: '段落文本',
-          attributes: ['textContent'],
-        },
-        {
-          selector: 'a',
-          name: '链接文本',
-          attributes: ['textContent', 'href'],
-        },
-        {
-          selector: 'input',
-          name: '输入框',
-          attributes: ['placeholder', 'value', 'type'],
-        },
-        {
-          selector: 'button',
-          name: '按钮',
-          attributes: ['textContent', 'value'],
-        }
-      ]
-    },
+  debug:[
+
   ],
   // 新闻网站抓取
   news: [
     {
       url: 'https://news.baidu.com',
-      taskName: '百度新闻抓取',
+      taskName: 'baidu-news',
       filename: 'baidu-news-data.txt',
       waitTime: 3000,
       elements: [
@@ -124,47 +71,6 @@ export const scrapeConfigs: ScrapeConfig = {
     },
   ],
 
-  // 热搜抓取
-  hotsearch: [
-    {
-      url: 'https://www.baidu.com',
-      taskName: '百度热搜抓取',
-      filename: 'baidu-hotsearch-data.txt',
-      waitTime: 3000,
-      elements: [
-        {
-          selector: '#hotsearch-content-wrapper > li:nth-child(1) > a > span.title-content-title',
-          name: '热搜第一',
-          attributes: ['textContent'],
-        },
-        {
-          selector: '#hotsearch-content-wrapper > li:nth-child(2) > a > span.title-content-title',
-          name: '热搜第二',
-          attributes: ['textContent'],
-        },
-        {
-          selector: '#hotsearch-content-wrapper > li:nth-child(3) > a > span.title-content-title',
-          name: '热搜第三',
-          attributes: ['textContent'],
-        },
-        {
-          selector: '#hotsearch-content-wrapper > li:nth-child(4) > a > span.title-content-title',
-          name: '热搜第四',
-          attributes: ['textContent'],
-        },
-        {
-          selector: '#hotsearch-content-wrapper > li:nth-child(5) > a > span.title-content-title',
-          name: '热搜第五',
-          attributes: ['textContent'],
-        },
-        {
-          selector: '#hotsearch-content-wrapper li a span.title-content-title',
-          name: '所有热搜标题',
-          attributes: ['textContent'],
-        }
-      ]
-    },
-  ],
 };
 
 /**

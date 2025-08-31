@@ -24,7 +24,6 @@ export const actionConfigs: ActionConfig = {
   debug:[
     
   ],
-  // 百度搜索操作
   baidu_search: [
     {
       url: 'https://www.baidu.com',
