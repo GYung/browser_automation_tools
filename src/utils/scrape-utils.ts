@@ -12,7 +12,7 @@ export interface TextElementConfig {
 export interface apiConfig {
   url: string; // 接口URL（支持部分匹配）
   name: string; // 接口名称，用于输出展示
-  fieldName?: string; // 要读取的返回字段名（如 'data', 'result', 'items' 等）
+  field?: string; // 要读取的返回字段名（如 'data', 'result', 'items' 等）
 }
 
 /**
@@ -219,13 +219,13 @@ export class ScrapeUtils {
             if (responseData) {
               // 使用新的嵌套字段读取方法
               let extractedData = responseData;
-              if (matchedApi.fieldName) {
-                const nestedValue = this.getNestedValue(responseData, matchedApi.fieldName);
+              if (matchedApi.field) {
+                const nestedValue = this.getNestedValue(responseData, matchedApi.field);
                 if (nestedValue !== undefined) {
                   extractedData = nestedValue;
-                  console.log(`📊 提取嵌套字段 '${matchedApi.fieldName}' 的数据`);
+                  console.log(`📊 提取嵌套字段 '${matchedApi.field}' 的数据`);
                 } else {
-                  console.warn(`⚠️ 未找到字段 '${matchedApi.fieldName}' 的数据`);
+                  console.warn(`⚠️ 未找到字段 '${matchedApi.field}' 的数据`);
                 }
               }
               

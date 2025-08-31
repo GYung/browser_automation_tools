@@ -11,8 +11,8 @@ import { DeepSeekService } from "../services/llm/deep-seek.js";
 export class DataScrapeTask extends BaseTask {
 
   /**
-   * 获取数据处理处理器实例
-   * @returns 数据处理处理器实例
+   * 获取采集处理器
+   * @returns 采集处理器实例
    */
   protected getAcquisitionHandler(): AcquisitionHandler {
     return new PageScrapeAcquisitionHandler();
@@ -32,6 +32,6 @@ export class DataScrapeTask extends BaseTask {
   }
 
   protected getUsage(): string {
-    return "npm run task scrape [url] [outputPath] [waitTime]";
+    return "npm run task scrape <configName>";
   }
 }

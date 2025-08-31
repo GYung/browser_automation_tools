@@ -10,6 +10,7 @@ import { appConfig } from "../config/index.js";
  * 任务进度回调监听器接口
  */
 export interface TaskProgressListener {
+  onTaskStart?: (taskIndex: number, task: ScrapeTask) => void;
   onTaskEnd?: (taskResult: any) => void;
 }
 
@@ -53,6 +54,9 @@ export class PageScrapeAcquisitionHandler implements AcquisitionHandler {
         if (!task) continue;
         
         console.log(`\n🔄 执行任务 ${i + 1}/${tasks.length}: ${task.taskName} (${task.url})`);
+
+         // 任务开始回调
+        this.progressListener?.onTaskStart?.(i, task);
         
         // 创建新页面
         const page = await browserManager.newPage();
@@ -70,7 +74,7 @@ export class PageScrapeAcquisitionHandler implements AcquisitionHandler {
             success: true,
           }
 
-           // 调用任务结束回调
+           // 任务结束回调
            this.progressListener?.onTaskEnd?.(taskResult);
           
           results.push(taskResult);

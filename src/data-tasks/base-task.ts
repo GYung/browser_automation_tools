@@ -26,7 +26,7 @@ export abstract class BaseTask {
     }
 
     let outputInput;
-    // 2.分析 - 分析处理器是可选的
+    // 2.分析
     const analysisHandler = this.getAnalysisHandler();
     if (analysisHandler) {
       const analysisResult = await analysisHandler.execute(acquisitionResult, context);
@@ -35,7 +35,7 @@ export abstract class BaseTask {
       outputInput = this.acquisitionToOutput(acquisitionResult, context)
     }
 
-    // 3.输出 - 转换分析结果并传递给输出处理器
+    // 3.输出
     const outputHandler = this.getOutputHandler();
     if (outputHandler) {
       await outputHandler.execute(outputInput, context);
@@ -58,7 +58,7 @@ export abstract class BaseTask {
 
   /**
    * 获取输出处理器
-   * @returns 输出处理器实例
+   * @returns 输出处理器实例（可选）
    */
   protected  getOutputHandler(): OutputHandler | undefined {
     return undefined;

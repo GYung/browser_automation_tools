@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
 
 async function searchTest() {
   // 启动浏览器，使用本地 Chrome

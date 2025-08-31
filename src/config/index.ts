@@ -31,8 +31,8 @@ export const appConfig = {
     apiKey: process.env.DEEPSEEK_API_KEY || '', // 从环境变量获取API密钥
     baseUrl: 'https://api.deepseek.com/v1',
     model: 'deepseek-chat',
-    maxTokens: 4096,
+    maxTokens: 1024,
     temperature: 0.7,
-    timeout: 60000, // 60秒超时
+    timeout: 120000, // 120秒超时
   },
 };

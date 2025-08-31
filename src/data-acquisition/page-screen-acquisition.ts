@@ -35,7 +35,7 @@ export class PageScreenAcquisitionHandler implements AcquisitionHandler {
 
     try {
       // 获取任务列表
-      const configName = input || 'quick';
+      const configName = input;
       const tasks = getScreenshotConfig(configName);
       
       if (tasks.length === 0) {
@@ -51,7 +51,7 @@ export class PageScreenAcquisitionHandler implements AcquisitionHandler {
         
         console.log(`\n🔄 执行任务 ${i + 1}/${tasks.length}: ${task.url}`);
         
-        // 调用任务开始回调
+        // 任务开始回调
         this.progressListener?.onTaskStart?.(i, task);
         
          // 直接导航到目标页面（登录状态已在初始化时处理）

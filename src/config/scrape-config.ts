@@ -6,7 +6,7 @@ import { Task,  OperationType } from "../types/index.js";
 export interface ScrapeApiConfig {
   url: string; // 接口URL（支持部分匹配）
   name: string; // 接口名称，用于输出展示
-  fieldName?: string; // 要读取的返回字段名（如 'data', 'result', 'items' 等）
+  field?: string; // 要读取的返回字段名（如 'data', 'result', 'items' 等）
 }
 
 /**
@@ -52,7 +52,7 @@ export const scrapeConfigs: ScrapeConfig = {
       {
         url: 'https://news.baidu.com/widget?id=LocalNews',
         name: '新闻接口',
-        fieldName: 'data'
+        field: 'data'
       }
     ]
   }],

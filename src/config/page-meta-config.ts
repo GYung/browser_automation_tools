@@ -51,5 +51,11 @@ export const pageMetaConfigs: PageMetaConfig = {
  * @returns 截图任务列表
  */
 export function getMetaConfig(configName: string): Map<string, MetaConfig> {
-  return pageMetaConfigs[configName] || new Map();
+  let metaConfig = new Map();
+  Object.keys(pageMetaConfigs).forEach(key=>{
+    if(configName.startsWith(key)){
+      metaConfig = pageMetaConfigs[key] || new Map();
+    }
+  });
+  return metaConfig;
 }

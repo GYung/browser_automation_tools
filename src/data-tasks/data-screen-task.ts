@@ -4,13 +4,13 @@ import { BaseTask } from "./base-task.js";
 import { HtmlOutputHandler } from "../data-output/html-output.js";
 
 /**
- * 数据采集任务 - 负责从各种数据源采集数据
+ * 数据采集任务
  */
 export class DataScreenTask extends BaseTask {
  
   /**
-   * 获取数据处理处理器实例
-   * @returns 数据处理处理器实
+   * 获取采集处理器
+   * @returns 采集处理器实例
    */
   protected getAcquisitionHandler(): AcquisitionHandler {
     // 创建匿名进度监听器
@@ -33,6 +33,6 @@ export class DataScreenTask extends BaseTask {
   }
 
   protected getUsage(): string {
-    return "npm run task screen [url] [screenshotPath] [waitTime] [fullPage]";
+    return "npm run task screen <configName>";
   }
 }

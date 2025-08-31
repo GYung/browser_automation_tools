@@ -6,10 +6,24 @@ import { BrowserController } from "../core/browser-controller.js";
 import { appConfig } from "../config/index.js";
 
 /**
+ * 任务进度回调监听器接口
+ */
+export interface TaskProgressListener {
+  onTaskStart?: (taskIndex: number, task: ActionTask) => void;
+}
+
+/**
  * 页面操作采集器
  * 负责在页面中执行各种操作（如搜索、点击等）
  */
 export class PageActionAcquisitionHandler implements AcquisitionHandler {
+
+  private progressListener: TaskProgressListener | undefined;
+
+  constructor(progressListener?: TaskProgressListener) {
+    this.progressListener = progressListener;
+  }
+
   /**
    * 实现接口方法 - 执行页面操作
    * @param input - 输入参数，包含配置名称或直接配置
@@ -24,7 +38,7 @@ export class PageActionAcquisitionHandler implements AcquisitionHandler {
 
     try {
       // 获取任务列表
-      const configName = input || 'baidu_search';
+      const configName = input;
       const tasks = getActionConfig(configName);
       
       if (tasks.length === 0) {
@@ -39,6 +53,9 @@ export class PageActionAcquisitionHandler implements AcquisitionHandler {
         if (!task) continue;
         
         console.log(`\n🔄 执行任务 ${i + 1}/${tasks.length}: ${task.taskName} (${task.url})`);
+
+         // 任务开始回调
+         this.progressListener?.onTaskStart?.(i, task);
         
         // 创建新页面并导航
         const page = await browserManager.newPageWithUrl(task.url);
@@ -54,13 +71,13 @@ export class PageActionAcquisitionHandler implements AcquisitionHandler {
           results.push({
             taskName: task.taskName,
             url: task.url,
-            description: task.description,
+            description: task.taskDesc,
             success: true,
           });
 
           console.log(`✅ 任务 ${i + 1} 完成`);
         } finally {
-          await page.close();
+          // await page.close();
         }
       }
 

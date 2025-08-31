@@ -88,16 +88,16 @@ function testNestedFieldAccess() {
   };
 
   const apiConfigs = [
-    { name: '新闻列表', fieldName: 'data.result.items' },
-    { name: '分页信息', fieldName: 'data.result.pagination' },
-    { name: '状态码', fieldName: 'code' },
-    { name: '完整数据', fieldName: 'data' },
-    { name: '不存在的字段', fieldName: 'data.nonexistent' }
+    { name: '新闻列表', field: 'data.result.items' },
+    { name: '分页信息', field: 'data.result.pagination' },
+    { name: '状态码', field: 'code' },
+    { name: '完整数据', field: 'data' },
+    { name: '不存在的字段', field: 'data.nonexistent' }
   ];
 
   apiConfigs.forEach(config => {
-    const extractedData = getNestedValue(mockApiResponse, config.fieldName);
-    console.log(`📊 ${config.name} (${config.fieldName}):`);
+    const extractedData = getNestedValue(mockApiResponse, config.field);
+    console.log(`📊 ${config.name} (${config.field}):`);
     console.log(`   ${JSON.stringify(extractedData, null, 2)}\n`);
   });
 }

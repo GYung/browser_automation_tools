@@ -8,7 +8,6 @@ import { Task, OperationType } from "../types/index.js";
  * 页面操作任务配置
  */
 export interface ActionTask extends Task {
-  description?: string; // 任务描述
 }
 
 /**
@@ -22,12 +21,15 @@ export interface ActionConfig {
  * 预定义的页面操作配置
  */
 export const actionConfigs: ActionConfig = {
+  debug:[
+    
+  ],
   // 百度搜索操作
   baidu_search: [
     {
       url: 'https://www.baidu.com',
-      taskName: '百度搜索操作',
-      description: '在百度首页进行搜索操作',
+      taskName: 'baidu_search',
+      taskDesc: '在百度首页进行搜索操作',
       waitTime: 2000,
       operations: [
         {
@@ -40,8 +42,8 @@ export const actionConfigs: ActionConfig = {
           value: '人工智能',
         },
         {
-          type: OperationType.CLICK,
-          selector: '#su',
+          type: OperationType.KEYBOARD,
+          selector: 'Enter',
         }
       ]
     },

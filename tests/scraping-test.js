@@ -1,4 +1,4 @@
-import puppeteer from 'puppeteer';
+import puppeteer from 'puppeteer-core';
 import { promises as fs } from 'fs';
 
 async function scrapeTest() {
@@ -20,13 +20,6 @@ async function scrapeTest() {
 
   // 等待一下让页面完全加载
   await new Promise((resolve) => setTimeout(resolve, 3000));
-
-  // 截图保存页面
-  console.log("📸 截图保存页面...");
-  await page.screenshot({
-    path: "output/github-trending.png",
-    fullPage: true,
-  });
 
   // 提取仓库数据
   console.log("📊 提取仓库数据...");
@@ -65,10 +58,6 @@ async function scrapeTest() {
         const starsElement = element.querySelector('a[href*="/stargazers"]');
         const stars = starsElement ? starsElement.textContent.trim() : "0";
 
-        // 获取 fork 数
-        const forksElement = element.querySelector('a[href*="/forks"]');
-        const forks = forksElement ? forksElement.textContent.trim() : "0";
-
         // 获取今日星标数
         const todayStarsElement = element.querySelector(
           "span.d-inline-block.float-sm-right",
@@ -85,7 +74,6 @@ async function scrapeTest() {
             description: repoDescription,
             language: language,
             stars: stars,
-            forks: forks,
             todayStars: todayStars,
           });
         }

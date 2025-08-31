@@ -88,10 +88,12 @@ class App {
 }
 
 function help() {
-  console.log("Usage: npm run task <command|taskName> [params]");
+  console.log("Usage: npm run <command> [params]");
   console.log("commond:");
-  console.log("list: 显示所有任务");
-  console.log("help: 帮助指南");
+  console.log("list:  显示所有任务");
+  console.log("task:  运行指定任务: task <任务名> <配置名>");
+  console.log("build: 编译项目");
+  console.log("help:  帮助指南");
 }
 
 async function listTasks() {
@@ -99,7 +101,6 @@ async function listTasks() {
   await taskManager.initialize();
   const taskList = taskManager.getTaskList();
 
-  console.log("可用的任务:");
   taskList.forEach((task) => {
     console.log(`\n📋 ${task.name}`);
     console.log(`   描述: ${task.description}`);
@@ -113,7 +114,7 @@ async function main() {
   const args = process.argv.slice(2);
   const command = args[0];
   const params = args[1];
-  console.log(command, params);
+
   try {
     switch (command) {
       case "help":

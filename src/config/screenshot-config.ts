@@ -23,6 +23,9 @@ export interface ScreenshotConfig {
  * 预定义的截图配置
  */
 export const screenshotConfigs: ScreenshotConfig = {
+  debug:[
+    
+  ],
   // 百度相关截图
   baidu: [
     {

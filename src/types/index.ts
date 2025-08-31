@@ -24,6 +24,7 @@ export enum OperationType {
 export interface Task {
   url: string;              // 目标URL
   taskName?:string  // 任务名称 
+  taskDesc?:string // 任务描述
   waitTime?: number;        // 等待时间
   operations?: Array<OperationConfig>; // 操作配置
   metadata?: Record<string, any>; // 元数据
